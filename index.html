@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KALE / USDC Dashboard</title>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
+      --accent-green: #4caf50;
+      --accent-red: #f44336;
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      max-width: 800px;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      flex: 1 1 300px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.25rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+    }
+
+    .input-group input {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #2e2e2e;
+      color: var(--text-color);
+      outline: none;
+    }
+
+    .health-display {
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #3f51b5;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #5c6bc0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="deposit-card">
+      <h2>Deposit KALE</h2>
+      <div class="input-group">
+        <label for="depositAmount">Amount (KALE)</label>
+        <input type="number" id="depositAmount" placeholder="0.0" min="0" step="0.01" />
+      </div>
+      <button id="depositBtn">Deposit</button>
+    </div>
+
+    <div class="card" id="borrow-card">
+      <h2>Borrow USDC</h2>
+      <div class="input-group">
+        <label for="borrowAmount">Amount (USDC)</label>
+        <input type="number" id="borrowAmount" placeholder="0.0" min="0" step="0.01" />
+      </div>
+      <div class="health-display" id="healthFactor">HF: --</div>
+      <button id="borrowBtn">Borrow</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Configuration ---
+    const PRICE_REFRESH_MS = 20_000; // 20 seconds
+
+    // Placeholder token IDs for CoinGecko; adjust if Reflector uses different IDs
+    const TOKEN_IDS = {
+      KALE: 'kale-network',     // hypothetical ID; replace with actual Reflector token identifier
+      USDC: 'usd-coin'
+    };
+
+    const state = {
+      prices: {
+        KALE: null,
+        USDC: 1 // assume USDC ~ $1 stablecoin
+      },
+      depositAmount: 0,
+      borrowAmount: 0,
+    };
+
+    // --- DOM Elements ---
+    const depositInput = document.getElementById('depositAmount');
+    const borrowInput  = document.getElementById('borrowAmount');
+    const healthEl     = document.getElementById('healthFactor');
+
+    // --- Fetch price from Reflector (fallback to CoinGecko) ---
+    async function fetchPrice(symbol) {
+      try {
+        // Attempt Reflector price endpoint (replace with real URL if available)
+        const reflectorResp = await fetch(`https://api.reflector.finance/price?asset=${symbol}`);
+        if (reflectorResp.ok) {
+          const data = await reflectorResp.json();
+          if (data && data.price) return Number(data.price);
+        }
+      } catch (e) {
+        // console.log('Reflector fetch failed for', symbol, e);
+      }
+
+      // Fallback to CoinGecko simple price API
+      try {
+        const id = TOKEN_IDS[symbol];
+        if (!id) throw new Error('Unsupported symbol ' + symbol);
+        const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+        const data = await resp.json();
+        return data[id].usd;
+      } catch (e) {
+        console.error('Failed to fetch price for', symbol, e);
+        return null;
+      }
+    }
+
+    async function refreshPrices() {
+      const [kaleP, usdcP] = await Promise.all([
+        fetchPrice('KALE'),
+        fetchPrice('USDC'),
+      ]);
+      if (kaleP) state.prices.KALE = kaleP;
+      if (usdcP) state.prices.USDC = usdcP;
+      computeHealthFactor();
+    }
+
+    function computeHealthFactor() {
+      const { KALE, USDC } = state.prices;
+      if (!KALE || !USDC) return;
+      const collateralUSD = state.depositAmount * KALE;
+      const debtUSD       = state.borrowAmount * USDC;
+      if (debtUSD === 0) {
+        updateHealthDisplay('--', 'safe');
+        return;
+      }
+      const hf = collateralUSD / debtUSD;
+      const status = hf >= 1 ? 'safe' : 'risk';
+      updateHealthDisplay(hf.toFixed(2), status);
+    }
+
+    function updateHealthDisplay(value, status) {
+      healthEl.textContent = `HF: ${value}`;
+      if (status === 'safe') {
+        healthEl.style.color = 'var(--accent-green)';
+      } else {
+        healthEl.style.color = 'var(--accent-red)';
+      }
+    }
+
+    // --- Event Handlers ---
+    depositInput.addEventListener('input', (e) => {
+      state.depositAmount = parseFloat(e.target.value) || 0;
+      computeHealthFactor();
+    });
+    borrowInput.addEventListener('input', (e) => {
+      state.borrowAmount = parseFloat(e.target.value) || 0;
+      computeHealthFactor();
+    });
+
+    // Initial execution
+    refreshPrices();
+    setInterval(refreshPrices, PRICE_REFRESH_MS);
+  </script>
+</body>
+</html>

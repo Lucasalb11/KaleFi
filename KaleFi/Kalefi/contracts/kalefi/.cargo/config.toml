@@ -1,0 +1,17 @@
+[target.wasm32-unknown-unknown]
+rustflags = [
+    "-C", "target-feature=-reference-types",
+    "-C", "target-feature=-bulk-memory",
+    "-C", "target-feature=-simd128",
+    "-C", "link-arg=--import-memory",
+    "-C", "link-arg=--initial-memory=2097152",
+    "-C", "link-arg=--max-memory=2097152",
+    "-C", "link-arg=--stack-first",
+    "-C", "link-arg=--export-table",
+    "-C", "link-arg=--export=__heap_base",
+    "-C", "link-arg=--export=__data_end",
+]
+
+[unstable]
+build-std = ["std", "panic_abort"]
+build-std-features = ["panic_immediate_abort"]

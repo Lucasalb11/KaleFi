@@ -7,14 +7,16 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
 ### Operações Principais
 
 #### 1. **Supply (Depósito)**
+
 - **O que é**: Depositar tokens KALE como collateral
-- **Como funciona**: 
+- **Como funciona**:
   - Digite a quantidade de KALE que deseja depositar
   - Clique em "Supply"
   - Os tokens são adicionados ao seu collateral
   - Você pode ver o total na seção "Your Supplies"
 
 #### 2. **Borrow (Empréstimo)**
+
 - **O que é**: Pegar emprestado tokens USDC
 - **Como funciona**:
   - Primeiro você precisa ter collateral (KALE)
@@ -24,6 +26,7 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
   - A dívida aparece na seção "Your Borrows"
 
 #### 3. **Withdraw (Retirada)**
+
 - **O que é**: Retirar parte do seu collateral
 - **Como funciona**:
   - Digite a quantidade de KALE que deseja retirar
@@ -32,6 +35,7 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
   - O collateral é reduzido proporcionalmente
 
 #### 4. **Repay (Pagamento)**
+
 - **O que é**: Pagar parte da sua dívida
 - **Como funciona**:
   - Digite a quantidade de USDC que deseja pagar
@@ -41,12 +45,14 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
 ### Indicadores de Risco
 
 #### **Health Factor**
+
 - **∞ (Safe)**: Sem dívida - situação segura
 - **> 1.5**: Seguro - pode fazer operações
 - **1.1 - 1.5**: Aviso - cuidado com novas operações
 - **< 1.1**: Perigoso - não pode fazer novas operações
 
 #### **Loan-to-Value (LTV)**
+
 - **0%**: Sem dívida
 - **< 50%**: Seguro
 - **50-80%**: Aviso
@@ -55,14 +61,17 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
 ### **Limites de Empréstimo (Borrow Limits)**
 
 #### **Cálculo do LTV**
+
 O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 
 #### **Exemplo Prático**
+
 - **Collateral**: 100 KALE × $0.50 = $50
 - **LTV Máximo**: 80% = $40 USDC
 - **Borrow Permitido**: Máximo $40 USDC
 
 #### **Validações Automáticas**
+
 - ✅ **Interface**: Mostra limite máximo em tempo real
 - ✅ **Botão**: Desabilitado quando excede LTV
 - ✅ **Hook**: Validação dupla no backend
@@ -71,16 +80,19 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 ## 🔧 Como Usar
 
 ### 1. **Conectar Carteira**
+
 - Clique em "Connect Wallet" no canto superior direito
 - Use Freighter ou outra carteira compatível com Stellar
 
 ### 2. **Fazer Supply**
+
 1. Na seção "Assets to Supply"
 2. Digite a quantidade de KALE
 3. Clique em "Supply"
 4. Confirme a transação na sua carteira
 
 ### 3. **Fazer Borrow**
+
 1. Primeiro faça supply de KALE como collateral
 2. Na seção "Assets to Borrow"
 3. Digite a quantidade de USDC
@@ -88,6 +100,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 5. Confirme a transação na sua carteira
 
 ### 4. **Monitorar Posição**
+
 - Use a seção "Your Position Status" para ver:
   - Total de collateral
   - Total de dívida
@@ -96,18 +109,21 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 ## 📊 Dados em Tempo Real
 
 ### Preços
+
 - **KALE**: Preço atual em USD
 - **USDC**: Sempre $1.00 (stablecoin)
 - Mudanças de 24h
 - Volume de negociação
 
 ### APY (Annual Percentage Yield)
+
 - **KALE Supply**: 3.42% (ganho sobre collateral)
 - **USDC Borrow**: 5.33% (custo do empréstimo)
 
 ## 🛡️ Segurança
 
 ### Validações Implementadas
+
 - ✅ Verificação de carteira conectada
 - ✅ Validação de valores positivos
 - ✅ Verificação de health factor
@@ -118,6 +134,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 - ✅ **Validação em tempo real dos limites de empréstimo**
 
 ### Boas Práticas
+
 - Mantenha seu health factor acima de 1.5
 - Não retire todo seu collateral se tiver dívidas
 - Monitore o preço do KALE (afeta seu health factor)
@@ -126,11 +143,13 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 ## 🔄 Estado da Interface
 
 ### Atualizações em Tempo Real
+
 - O estado é atualizado imediatamente após operações
 - Health factor e LTV são recalculados automaticamente
 - Feedback visual instantâneo para todas as operações
 
 ### Dados Persistidos
+
 - As operações são simuladas localmente para demonstração
 - Em produção, os dados virão dos smart contracts
 - O estado é mantido durante a sessão do usuário
@@ -138,6 +157,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 ## 🧪 Modo Demo
 
 **⚠️ IMPORTANTE**: Esta é uma versão de demonstração que:
+
 - Usa dados simulados (mock data)
 - Não faz transações reais na blockchain
 - Serve para testar a interface e fluxo de usuário
@@ -146,6 +166,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 ## 🚀 Próximos Passos
 
 ### Implementações Futuras
+
 - [ ] Integração real com smart contracts Soroban
 - [ ] Transações reais na blockchain Stellar
 - [ ] Histórico de transações
@@ -154,6 +175,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 - [ ] Analytics avançados de posição
 
 ### Melhorias de UX
+
 - [ ] Animações de transições
 - [ ] Modo escuro/claro
 - [ ] Responsividade mobile
@@ -166,6 +188,7 @@ O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
 
 **Q: Por que não consigo fazer borrow?**
 A: Verifique se:
+
 - Tem collateral suficiente
 - Health factor > 1.1
 - Carteira conectada
@@ -179,6 +202,7 @@ A: Só se não tiver dívidas. Caso contrário, mantenha suficiente para manter 
 ## 🤝 Contribuição
 
 Para contribuir com o desenvolvimento:
+
 1. Fork o repositório
 2. Crie uma branch para sua feature
 3. Implemente as mudanças
@@ -188,4 +212,3 @@ Para contribuir com o desenvolvimento:
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
-

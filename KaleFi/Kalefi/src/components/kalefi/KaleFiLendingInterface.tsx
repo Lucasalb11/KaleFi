@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useSorobanReact } from '@soroban-react/core'
 import { toast } from 'react-hot-toast'
 import tw from 'twin.macro'
-import { 
-  FaCoins, 
-  FaDollarSign, 
-  FaExclamationTriangle, 
+import {
+  FaCoins,
+  FaDollarSign,
+  FaExclamationTriangle,
   FaCheckCircle,
   FaChartLine,
   FaArrowUp,
@@ -16,7 +16,7 @@ import {
   FaPercentage,
   FaShieldAlt,
   FaExchangeAlt,
-  FaTimes
+  FaTimes,
 } from 'react-icons/fa'
 import { usePriceOracle } from '@/hooks/usePriceOracle'
 import { useKalefi } from '@/hooks/useKalefi'
@@ -33,7 +33,7 @@ export const KaleFiLendingInterface: React.FC = () => {
   const [swapFromToken, setSwapFromToken] = useState('KALE')
   const [swapToToken, setSwapToToken] = useState('USDC')
   const [swapAmount, setSwapAmount] = useState('')
-  
+
   const {
     collateral,
     debt,
@@ -44,7 +44,7 @@ export const KaleFiLendingInterface: React.FC = () => {
     deposit,
     borrow,
     withdraw,
-    repay
+    repay,
   } = useKalefi()
 
   // Visual feedback colors
@@ -56,7 +56,8 @@ export const KaleFiLendingInterface: React.FC = () => {
 
   const getHealthIcon = (health: number) => {
     if (health >= 1.5) return <FaCheckCircle className="text-green-400" />
-    if (health >= 1.1) return <FaExclamationTriangle className="text-yellow-400" />
+    if (health >= 1.1)
+      return <FaExclamationTriangle className="text-yellow-400" />
     return <FaExclamationTriangle className="text-red-400" />
   }
 
@@ -83,7 +84,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       toast.error('Please connect your wallet first')
       return
     }
-    
+
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
       toast.error('Please enter a valid deposit amount')
       return
@@ -93,7 +94,9 @@ export const KaleFiLendingInterface: React.FC = () => {
       const amount = parseFloat(depositAmount)
       await deposit(amount)
       setDepositAmount('')
-      toast.success(`Successfully deposited ${amount} KALE! Check "Your Supplies" section.`)
+      toast.success(
+        `Successfully deposited ${amount} KALE! Check "Your Supplies" section.`
+      )
     } catch (error) {
       toast.error('Deposit failed. Please try again.')
       console.error('Deposit error:', error)
@@ -105,7 +108,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       toast.error('Please connect your wallet first')
       return
     }
-    
+
     if (!borrowAmount || parseFloat(borrowAmount) <= 0) {
       toast.error('Please enter a valid borrow amount')
       return
@@ -120,18 +123,22 @@ export const KaleFiLendingInterface: React.FC = () => {
     const collateralValue = collateral * kalePrice
     const maxBorrowAmount = collateralValue * 0.8 // 80% LTV limit
     const requestedAmount = parseFloat(borrowAmount)
-    
+
     if (requestedAmount > maxBorrowAmount) {
-      toast.error(`Cannot borrow more than ${maxBorrowAmount.toFixed(2)} USDC (80% of collateral value)`)
+      toast.error(
+        `Cannot borrow more than ${maxBorrowAmount.toFixed(2)} USDC (80% of collateral value)`
+      )
       return
     }
 
     // Check if new debt would exceed LTV limit
     const newDebt = debt + requestedAmount
     const newLTV = (newDebt / collateralValue) * 100
-    
+
     if (newLTV > 80) {
-      toast.error(`Borrowing ${requestedAmount} USDC would exceed the 80% LTV limit`)
+      toast.error(
+        `Borrowing ${requestedAmount} USDC would exceed the 80% LTV limit`
+      )
       return
     }
 
@@ -144,7 +151,9 @@ export const KaleFiLendingInterface: React.FC = () => {
       const amount = parseFloat(borrowAmount)
       await borrow(amount)
       setBorrowAmount('')
-      toast.success(`Successfully borrowed ${amount} USDC! Check "Your Borrows" section.`)
+      toast.success(
+        `Successfully borrowed ${amount} USDC! Check "Your Borrows" section.`
+      )
     } catch (error) {
       toast.error('Borrow failed. Please try again.')
       console.error('Borrow error:', error)
@@ -156,7 +165,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       toast.error('Please connect your wallet first')
       return
     }
-    
+
     if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
       toast.error('Please enter a valid withdraw amount')
       return
@@ -183,7 +192,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       toast.error('Please connect your wallet first')
       return
     }
-    
+
     if (!repayAmount || parseFloat(repayAmount) <= 0) {
       toast.error('Please enter a valid repay amount')
       return
@@ -210,7 +219,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       toast.error('Please connect your wallet first')
       return
     }
-    
+
     if (!swapAmount || parseFloat(swapAmount) <= 0) {
       toast.error('Please enter a valid swap amount')
       return
@@ -234,22 +243,25 @@ export const KaleFiLendingInterface: React.FC = () => {
   }
 
   return (
-    <div tw="w-full max-w-7xl mx-auto p-6">
+    <div tw="mx-auto w-full max-w-7xl p-6">
       {/* Header */}
-      <div tw="text-center mb-8">
-        <h1 tw="text-4xl font-bold text-white mb-4">KaleFi Lending Protocol</h1>
+      <div tw="mb-8 text-center">
+        <h1 tw="mb-4 font-bold text-4xl text-white">KaleFi Lending Protocol</h1>
         <p tw="text-gray-400 text-lg">Collateralized Lending on Stellar</p>
       </div>
 
       {/* Contract Status Indicator */}
-      <div tw="bg-blue-900/20 border border-blue-700 rounded-lg p-4 mb-6">
+      <div tw="mb-6 rounded-lg border border-blue-700 bg-blue-900/20 p-4">
         <div tw="flex items-center gap-3">
-          <div tw="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></div>
+          <div tw="h-3 w-3 animate-pulse rounded-full bg-blue-400"></div>
           <div>
-            <h3 tw="text-blue-400 font-semibold">🚀 KaleFi Demo Mode</h3>
+            <h3 tw="font-semibold text-blue-400">🚀 KaleFi Demo Mode</h3>
             <p tw="text-blue-300 text-sm">
-              Interface conectada com dados simulados. Contratos deployados na testnet: 
-              <code tw="bg-blue-800 px-2 py-1 rounded text-xs">CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6</code>
+              Interface conectada com dados simulados. Contratos deployados na
+              testnet:
+              <code tw="rounded bg-blue-800 px-2 py-1 text-xs">
+                CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6
+              </code>
             </p>
           </div>
         </div>
@@ -257,33 +269,46 @@ export const KaleFiLendingInterface: React.FC = () => {
 
       {/* User Position Status */}
       {address && (
-        <div tw="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
-          <div tw="text-center mb-4">
-            <h3 tw="text-lg font-semibold text-white">Your Position Status</h3>
+        <div tw="mb-6 rounded-lg border border-gray-700 bg-gray-800 p-4">
+          <div tw="mb-4 text-center">
+            <h3 tw="font-semibold text-lg text-white">Your Position Status</h3>
           </div>
-          <div tw="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+          <div tw="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div tw="rounded-lg border border-gray-600 bg-gray-700 p-3">
               <div tw="text-center">
                 <p tw="text-gray-400 text-sm">Total Supplied</p>
-                <p tw="text-white font-bold text-lg">{collateral.toFixed(4)} KALE</p>
-                <p tw="text-gray-400 text-xs">${(collateral * kalePrice).toFixed(2)}</p>
+                <p tw="font-bold text-white text-lg">
+                  {collateral.toFixed(4)} KALE
+                </p>
+                <p tw="text-gray-400 text-xs">
+                  ${(collateral * kalePrice).toFixed(2)}
+                </p>
               </div>
             </div>
-            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+            <div tw="rounded-lg border border-gray-600 bg-gray-700 p-3">
               <div tw="text-center">
                 <p tw="text-gray-400 text-sm">Total Borrowed</p>
-                <p tw="text-white font-bold text-lg">{debt.toFixed(2)} USDC</p>
+                <p tw="font-bold text-white text-lg">{debt.toFixed(2)} USDC</p>
                 <p tw="text-gray-400 text-xs">${debt.toFixed(2)}</p>
               </div>
             </div>
-            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+            <div tw="rounded-lg border border-gray-600 bg-gray-700 p-3">
               <div tw="text-center">
                 <p tw="text-gray-400 text-sm">Health Factor</p>
-                <p className={getHealthColor(healthFactor)} tw="font-bold text-lg">
+                <p
+                  className={getHealthColor(healthFactor)}
+                  tw="font-bold text-lg"
+                >
                   {healthFactor >= 999 ? '∞' : healthFactor.toFixed(2)}
                 </p>
                 <p tw="text-gray-400 text-xs">
-                  {healthFactor >= 999 ? 'Safe (No Debt)' : healthFactor >= 1.5 ? 'Safe' : healthFactor >= 1.1 ? 'Warning' : 'Danger'}
+                  {healthFactor >= 999
+                    ? 'Safe (No Debt)'
+                    : healthFactor >= 1.5
+                      ? 'Safe'
+                      : healthFactor >= 1.1
+                        ? 'Warning'
+                        : 'Danger'}
                 </p>
               </div>
             </div>
@@ -292,47 +317,55 @@ export const KaleFiLendingInterface: React.FC = () => {
       )}
 
       {/* Price Display */}
-      <div tw="bg-gray-800 rounded-lg p-4 mb-6">
-        <div tw="text-center mb-4">
-          <h3 tw="text-lg font-semibold text-white">Real-Time Prices</h3>
+      <div tw="mb-6 rounded-lg bg-gray-800 p-4">
+        <div tw="mb-4 text-center">
+          <h3 tw="font-semibold text-lg text-white">Real-Time Prices</h3>
         </div>
-        <div tw="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div tw="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* KALE Price Card */}
-          <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div tw="flex items-center justify-between mb-2">
+          <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+            <div tw="mb-2 flex items-center justify-between">
               <div tw="flex items-center gap-2">
                 <FaChartLine className="text-blue-400" />
-                <span tw="text-gray-300 font-medium">KALE</span>
+                <span tw="font-medium text-gray-300">KALE</span>
               </div>
               <div tw="flex items-center gap-2">
                 {getPriceChangeIcon(prices.KALE.change24h)}
-                <span className={getPriceChangeColor(prices.KALE.change24h)} tw="text-sm">
-                  {prices.KALE.change24h > 0 ? '+' : ''}{prices.KALE.change24h.toFixed(2)}%
+                <span
+                  className={getPriceChangeColor(prices.KALE.change24h)}
+                  tw="text-sm"
+                >
+                  {prices.KALE.change24h > 0 ? '+' : ''}
+                  {prices.KALE.change24h.toFixed(2)}%
                 </span>
               </div>
             </div>
-            <div tw="text-2xl font-bold text-white">${prices.KALE.price}</div>
-            <div tw="text-xs text-gray-400 mt-1">
+            <div tw="font-bold text-2xl text-white">${prices.KALE.price}</div>
+            <div tw="mt-1 text-xs text-gray-400">
               Volume: ${(prices.KALE.volume24h / 1000000).toFixed(1)}M
             </div>
           </div>
 
           {/* USDC Price Card */}
-          <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div tw="flex items-center justify-between mb-2">
+          <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+            <div tw="mb-2 flex items-center justify-between">
               <div tw="flex items-center gap-2">
                 <FaChartLine className="text-green-400" />
-                <span tw="text-gray-300 font-medium">USDC</span>
+                <span tw="font-medium text-gray-300">USDC</span>
               </div>
               <div tw="flex items-center gap-2">
                 {getPriceChangeIcon(prices.USDC.change24h)}
-                <span className={getPriceChangeColor(prices.USDC.change24h)} tw="text-sm">
-                  {prices.USDC.change24h > 0 ? '+' : ''}{prices.USDC.change24h.toFixed(2)}%
+                <span
+                  className={getPriceChangeColor(prices.USDC.change24h)}
+                  tw="text-sm"
+                >
+                  {prices.USDC.change24h > 0 ? '+' : ''}
+                  {prices.USDC.change24h.toFixed(2)}%
                 </span>
               </div>
             </div>
-            <div tw="text-2xl font-bold text-white">${prices.USDC.price}</div>
-            <div tw="text-xs text-gray-400 mt-1">
+            <div tw="font-bold text-2xl text-white">${prices.USDC.price}</div>
+            <div tw="mt-1 text-xs text-gray-400">
               Volume: ${(prices.USDC.volume24h / 1000000).toFixed(1)}M
             </div>
           </div>
@@ -340,62 +373,64 @@ export const KaleFiLendingInterface: React.FC = () => {
       </div>
 
       {/* Main Interface - Aave Style */}
-      <div tw="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        
+      <div tw="grid grid-cols-1 gap-8 xl:grid-cols-2">
         {/* Left Side - Supply/Withdraw */}
         <div tw="space-y-6">
-          
           {/* Your Supplies */}
-          <div tw="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <div tw="flex items-center justify-between mb-4">
-              <h2 tw="text-xl font-bold text-white">Your Supplies</h2>
+          <div tw="rounded-xl border border-gray-700 bg-gray-800 p-6">
+            <div tw="mb-4 flex items-center justify-between">
+              <h2 tw="font-bold text-xl text-white">Your Supplies</h2>
               <div tw="flex items-center gap-2">
                 <FaShieldAlt className="text-blue-400" />
                 <span tw="text-blue-400 text-sm">Collateral</span>
               </div>
             </div>
-            
+
             {collateral > 0 ? (
               <div tw="space-y-4">
                 {/* KALE Supply */}
-                <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-                  <div tw="flex items-center justify-between mb-3">
+                <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+                  <div tw="mb-3 flex items-center justify-between">
                     <div tw="flex items-center gap-3">
-                      <div tw="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500">
                         <FaCoins className="text-white text-lg" />
                       </div>
                       <div>
-                        <h3 tw="text-white font-semibold">KALE</h3>
+                        <h3 tw="font-semibold text-white">KALE</h3>
                         <p tw="text-gray-400 text-sm">Collateral Asset</p>
                       </div>
                     </div>
                     <div tw="text-right">
-                      <p tw="text-white font-bold">{collateral.toFixed(4)} KALE</p>
-                      <p tw="text-gray-400 text-sm">${(collateral * kalePrice).toFixed(2)}</p>
+                      <p tw="font-bold text-white">
+                        {collateral.toFixed(4)} KALE
+                      </p>
+                      <p tw="text-gray-400 text-sm">
+                        ${(collateral * kalePrice).toFixed(2)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   {/* Supply Info */}
-                  <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+                  <div tw="mb-3 grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <p tw="text-gray-400">APY</p>
-                      <p tw="text-white font-semibold">3.42%</p>
+                      <p tw="font-semibold text-white">3.42%</p>
                     </div>
                     <div>
                       <p tw="text-gray-400">LTV</p>
-                      <p tw="text-white font-semibold">80%</p>
+                      <p tw="font-semibold text-white">80%</p>
                     </div>
                     <div>
                       <p tw="text-gray-400">Risk</p>
-                      <p tw="text-green-400 font-semibold">Low</p>
+                      <p tw="font-semibold text-green-400">Low</p>
                     </div>
                   </div>
-                  
+
                   {/* Withdraw Section */}
-                  <div tw="border-t border-gray-600 pt-3">
-                    <div tw="flex items-center gap-2 mb-2">
+                  <div tw="border-gray-600 border-t pt-3">
+                    <div tw="mb-2 flex items-center gap-2">
                       <FaUndo className="text-orange-400" />
-                      <span tw="text-orange-400 font-medium">Withdraw</span>
+                      <span tw="font-medium text-orange-400">Withdraw</span>
                     </div>
                     <div tw="flex gap-2">
                       <input
@@ -405,24 +440,34 @@ export const KaleFiLendingInterface: React.FC = () => {
                         placeholder="0.0"
                         max={collateral}
                         step="0.0001"
-                        tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500"
+                        tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:(border-orange-500 outline-none)"
                       />
                       <button
                         onClick={handleWithdraw}
-                        disabled={isLoading || !address || collateral <= 0 || !withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > collateral}
-                        tw="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+                        disabled={
+                          isLoading ||
+                          !address ||
+                          collateral <= 0 ||
+                          !withdrawAmount ||
+                          parseFloat(withdrawAmount) <= 0 ||
+                          parseFloat(withdrawAmount) > collateral
+                        }
+                        tw="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-orange-700 disabled:(cursor-not-allowed bg-gray-600)"
                       >
                         {isLoading ? '...' : 'Withdraw'}
                       </button>
                     </div>
-                    {withdrawAmount && parseFloat(withdrawAmount) > collateral && (
-                      <p tw="text-red-400 text-xs mt-1">Cannot withdraw more than your collateral</p>
-                    )}
+                    {withdrawAmount &&
+                      parseFloat(withdrawAmount) > collateral && (
+                        <p tw="mt-1 text-red-400 text-xs">
+                          Cannot withdraw more than your collateral
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
             ) : (
-              <div tw="text-center py-8">
+              <div tw="py-8 text-center">
                 <FaWallet className="text-gray-500 text-4xl mx-auto mb-3" />
                 <p tw="text-gray-400">Nothing supplied yet</p>
                 <p tw="text-gray-500 text-sm">Supply assets to start earning</p>
@@ -431,27 +476,27 @@ export const KaleFiLendingInterface: React.FC = () => {
           </div>
 
           {/* Assets to Supply */}
-          <div tw="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <div tw="flex items-center justify-between mb-4">
-              <h2 tw="text-xl font-bold text-white">Assets to Supply</h2>
-              <button tw="text-gray-400 hover:text-white text-sm">Hide</button>
+          <div tw="rounded-xl border border-gray-700 bg-gray-800 p-6">
+            <div tw="mb-4 flex items-center justify-between">
+              <h2 tw="font-bold text-xl text-white">Assets to Supply</h2>
+              <button tw="text-gray-400 text-sm hover:text-white">Hide</button>
             </div>
-            
-            <div tw="bg-blue-900/20 border border-blue-700 rounded-lg p-3 mb-4">
+
+            <div tw="mb-4 rounded-lg border border-blue-700 bg-blue-900/20 p-3">
               <p tw="text-blue-300 text-sm">
                 Supply assets to use as collateral and start earning
               </p>
             </div>
 
             {/* KALE Asset */}
-            <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-              <div tw="flex items-center justify-between mb-3">
+            <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+              <div tw="mb-3 flex items-center justify-between">
                 <div tw="flex items-center gap-3">
-                  <div tw="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500">
                     <FaCoins className="text-white text-lg" />
                   </div>
                   <div>
-                    <h3 tw="text-white font-semibold">KALE</h3>
+                    <h3 tw="font-semibold text-white">KALE</h3>
                     <p tw="text-gray-400 text-sm">KaleFi Token</p>
                   </div>
                 </div>
@@ -460,27 +505,27 @@ export const KaleFiLendingInterface: React.FC = () => {
                   <p tw="text-green-400 text-sm">✓ Can be collateral</p>
                 </div>
               </div>
-              
-              <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+
+              <div tw="mb-3 grid grid-cols-3 gap-2 text-sm">
                 <div>
                   <p tw="text-gray-400">APY</p>
-                  <p tw="text-white font-semibold">3.42%</p>
+                  <p tw="font-semibold text-white">3.42%</p>
                 </div>
                 <div>
                   <p tw="text-gray-400">LTV</p>
-                  <p tw="text-white font-semibold">80%</p>
+                  <p tw="font-semibold text-white">80%</p>
                 </div>
                 <div>
                   <p tw="text-gray-400">Risk</p>
-                  <p tw="text-green-400 font-semibold">Low</p>
+                  <p tw="font-semibold text-green-400">Low</p>
                 </div>
               </div>
-              
+
               {/* Supply Section */}
-              <div tw="border-t border-gray-600 pt-3">
-                <div tw="flex items-center gap-2 mb-2">
+              <div tw="border-gray-600 border-t pt-3">
+                <div tw="mb-2 flex items-center gap-2">
                   <FaCoins className="text-blue-400" />
-                  <span tw="text-blue-400 font-medium">Supply</span>
+                  <span tw="font-medium text-blue-400">Supply</span>
                 </div>
                 <div tw="flex gap-2">
                   <input
@@ -490,18 +535,26 @@ export const KaleFiLendingInterface: React.FC = () => {
                     placeholder="0.0"
                     min="0"
                     step="0.0001"
-                    tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:(border-blue-500 outline-none)"
                   />
                   <button
                     onClick={handleDeposit}
-                    disabled={isLoading || !address || pricesLoading || !depositAmount || parseFloat(depositAmount) <= 0}
-                    tw="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+                    disabled={
+                      isLoading ||
+                      !address ||
+                      pricesLoading ||
+                      !depositAmount ||
+                      parseFloat(depositAmount) <= 0
+                    }
+                    tw="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:(cursor-not-allowed bg-gray-600)"
                   >
                     {isLoading ? '...' : 'Supply'}
                   </button>
                 </div>
                 {depositAmount && parseFloat(depositAmount) <= 0 && (
-                  <p tw="text-red-400 text-xs mt-1">Please enter a valid amount</p>
+                  <p tw="mt-1 text-red-400 text-xs">
+                    Please enter a valid amount
+                  </p>
                 )}
               </div>
             </div>
@@ -510,58 +563,57 @@ export const KaleFiLendingInterface: React.FC = () => {
 
         {/* Right Side - Borrow/Repay */}
         <div tw="space-y-6">
-          
           {/* Your Borrows */}
-          <div tw="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <div tw="flex items-center justify-between mb-4">
-              <h2 tw="text-xl font-bold text-white">Your Borrows</h2>
+          <div tw="rounded-xl border border-gray-700 bg-gray-800 p-6">
+            <div tw="mb-4 flex items-center justify-between">
+              <h2 tw="font-bold text-xl text-white">Your Borrows</h2>
               <div tw="flex items-center gap-2">
                 <FaPercentage className="text-red-400" />
                 <span tw="text-red-400 text-sm">Debt</span>
               </div>
             </div>
-            
+
             {debt > 0 ? (
               <div tw="space-y-4">
                 {/* USDC Borrow */}
-                <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-                  <div tw="flex items-center justify-between mb-3">
+                <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+                  <div tw="mb-3 flex items-center justify-between">
                     <div tw="flex items-center gap-3">
-                      <div tw="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                      <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
                         <FaDollarSign className="text-white text-lg" />
                       </div>
                       <div>
-                        <h3 tw="text-white font-semibold">USDC</h3>
+                        <h3 tw="font-semibold text-white">USDC</h3>
                         <p tw="text-red-400 text-sm">Borrowed Asset</p>
                       </div>
                     </div>
                     <div tw="text-right">
-                      <p tw="text-white font-bold">{debt.toFixed(2)} USDC</p>
+                      <p tw="font-bold text-white">{debt.toFixed(2)} USDC</p>
                       <p tw="text-gray-400 text-sm">${debt.toFixed(2)}</p>
                     </div>
                   </div>
-                  
+
                   {/* Borrow Info */}
-                  <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+                  <div tw="mb-3 grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <p tw="text-gray-400">APY</p>
-                      <p tw="text-white font-semibold">5.33%</p>
+                      <p tw="font-semibold text-white">5.33%</p>
                     </div>
                     <div>
                       <p tw="text-gray-400">Max LTV</p>
-                      <p tw="text-white font-semibold">80%</p>
+                      <p tw="font-semibold text-white">80%</p>
                     </div>
                     <div>
                       <p tw="text-gray-400">Risk</p>
-                      <p tw="text-green-400 font-semibold">Low</p>
+                      <p tw="font-semibold text-green-400">Low</p>
                     </div>
                   </div>
-                  
+
                   {/* Repay Section */}
-                  <div tw="border-t border-gray-600 pt-3">
-                    <div tw="flex items-center gap-2 mb-2">
+                  <div tw="border-gray-600 border-t pt-3">
+                    <div tw="mb-2 flex items-center gap-2">
                       <FaCreditCard className="text-purple-400" />
-                      <span tw="text-purple-400 font-medium">Repay</span>
+                      <span tw="font-medium text-purple-400">Repay</span>
                     </div>
                     <div tw="flex gap-2">
                       <input
@@ -571,53 +623,64 @@ export const KaleFiLendingInterface: React.FC = () => {
                         placeholder="0.0"
                         max={debt}
                         step="0.01"
-                        tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                        tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:(border-purple-500 outline-none)"
                       />
                       <button
                         onClick={handleRepay}
-                        disabled={isLoading || !address || debt <= 0 || !repayAmount || parseFloat(repayAmount) <= 0 || parseFloat(repayAmount) > debt}
-                        tw="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+                        disabled={
+                          isLoading ||
+                          !address ||
+                          debt <= 0 ||
+                          !repayAmount ||
+                          parseFloat(repayAmount) <= 0 ||
+                          parseFloat(repayAmount) > debt
+                        }
+                        tw="rounded-lg bg-purple-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-purple-700 disabled:(cursor-not-allowed bg-gray-600)"
                       >
                         {isLoading ? '...' : 'Repay'}
                       </button>
                     </div>
                     {repayAmount && parseFloat(repayAmount) > debt && (
-                      <p tw="text-red-400 text-xs mt-1">Cannot repay more than your debt</p>
+                      <p tw="mt-1 text-red-400 text-xs">
+                        Cannot repay more than your debt
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
             ) : (
-              <div tw="text-center py-8">
+              <div tw="py-8 text-center">
                 <FaCreditCard className="text-gray-500 text-4xl mx-auto mb-3" />
                 <p tw="text-gray-400">Nothing borrowed yet</p>
-                <p tw="text-gray-500 text-sm">Supply collateral to start borrowing</p>
+                <p tw="text-gray-500 text-sm">
+                  Supply collateral to start borrowing
+                </p>
               </div>
             )}
           </div>
 
           {/* Assets to Borrow */}
-          <div tw="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <div tw="flex items-center justify-between mb-4">
-              <h2 tw="text-xl font-bold text-white">Assets to Borrow</h2>
-              <button tw="text-gray-400 hover:text-white text-sm">Hide</button>
+          <div tw="rounded-xl border border-gray-700 bg-gray-800 p-6">
+            <div tw="mb-4 flex items-center justify-between">
+              <h2 tw="font-bold text-xl text-white">Assets to Borrow</h2>
+              <button tw="text-gray-400 text-sm hover:text-white">Hide</button>
             </div>
-            
-            <div tw="bg-green-900/20 border border-green-700 rounded-lg p-3 mb-4">
+
+            <div tw="mb-4 rounded-lg border border-green-700 bg-green-900/20 p-3">
               <p tw="text-green-300 text-sm">
                 To borrow you need to supply any asset to be used as collateral
               </p>
             </div>
 
             {/* USDC Asset */}
-            <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-              <div tw="flex items-center justify-between mb-3">
+            <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+              <div tw="mb-3 flex items-center justify-between">
                 <div tw="flex items-center gap-3">
-                  <div tw="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
                     <FaDollarSign className="text-white text-lg" />
                   </div>
                   <div>
-                    <h3 tw="text-white font-semibold">USDC</h3>
+                    <h3 tw="font-semibold text-white">USDC</h3>
                     <p tw="text-gray-400 text-sm">USD Coin</p>
                   </div>
                 </div>
@@ -626,27 +689,27 @@ export const KaleFiLendingInterface: React.FC = () => {
                   <p tw="text-green-400 text-sm">✓ Stable</p>
                 </div>
               </div>
-              
-              <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+
+              <div tw="mb-3 grid grid-cols-3 gap-2 text-sm">
                 <div>
                   <p tw="text-gray-400">APY</p>
-                  <p tw="text-white font-semibold">5.33%</p>
+                  <p tw="font-semibold text-white">5.33%</p>
                 </div>
                 <div>
                   <p tw="text-gray-400">Max LTV</p>
-                  <p tw="text-white font-semibold">80%</p>
+                  <p tw="font-semibold text-white">80%</p>
                 </div>
                 <div>
                   <p tw="text-gray-400">Risk</p>
-                  <p tw="text-green-400 font-semibold">Low</p>
+                  <p tw="font-semibold text-green-400">Low</p>
                 </div>
               </div>
-              
+
               {/* Borrow Section */}
-              <div tw="border-t border-gray-600 pt-3">
-                <div tw="flex items-center gap-2 mb-2">
+              <div tw="border-gray-600 border-t pt-3">
+                <div tw="mb-2 flex items-center gap-2">
                   <FaDollarSign className="text-green-400" />
-                  <span tw="text-green-400 font-medium">Borrow</span>
+                  <span tw="font-medium text-green-400">Borrow</span>
                 </div>
                 <div tw="flex gap-2">
                   <input
@@ -655,48 +718,64 @@ export const KaleFiLendingInterface: React.FC = () => {
                     onChange={(e) => setBorrowAmount(e.target.value)}
                     placeholder="0.0"
                     min="0"
-                    max={collateral > 0 ? (collateral * kalePrice * 0.8).toFixed(2) : "0"}
+                    max={
+                      collateral > 0
+                        ? (collateral * kalePrice * 0.8).toFixed(2)
+                        : '0'
+                    }
                     step="0.01"
-                    tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
+                    tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:(border-green-500 outline-none)"
                   />
                   <button
                     onClick={handleBorrow}
                     disabled={
-                      isLoading || 
-                      !address || 
-                      healthFactor < 1.1 || 
-                      pricesLoading || 
-                      !borrowAmount || 
-                      parseFloat(borrowAmount) <= 0 || 
+                      isLoading ||
+                      !address ||
+                      healthFactor < 1.1 ||
+                      pricesLoading ||
+                      !borrowAmount ||
+                      parseFloat(borrowAmount) <= 0 ||
                       collateral <= 0 ||
-                      parseFloat(borrowAmount) > (collateral * kalePrice * 0.8)
+                      parseFloat(borrowAmount) > collateral * kalePrice * 0.8
                     }
-                    tw="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+                    tw="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-700 disabled:(cursor-not-allowed bg-gray-600)"
                   >
                     {isLoading ? '...' : 'Borrow'}
                   </button>
                 </div>
-                
+
                 {/* Borrow limit info */}
                 {collateral > 0 && (
-                  <div tw="bg-blue-900/20 border border-blue-700 rounded-lg p-2 mb-2">
+                  <div tw="mb-2 rounded-lg border border-blue-700 bg-blue-900/20 p-2">
                     <p tw="text-blue-300 text-xs">
-                      Max borrow: ${(collateral * kalePrice * 0.8).toFixed(2)} USDC (80% of ${(collateral * kalePrice).toFixed(2)} collateral)
+                      Max borrow: ${(collateral * kalePrice * 0.8).toFixed(2)}{' '}
+                      USDC (80% of ${(collateral * kalePrice).toFixed(2)}{' '}
+                      collateral)
                     </p>
                   </div>
                 )}
-                
+
                 {borrowAmount && parseFloat(borrowAmount) <= 0 && (
-                  <p tw="text-red-400 text-xs mt-1">Please enter a valid amount</p>
+                  <p tw="mt-1 text-red-400 text-xs">
+                    Please enter a valid amount
+                  </p>
                 )}
-                {borrowAmount && collateral > 0 && parseFloat(borrowAmount) > (collateral * kalePrice * 0.8) && (
-                  <p tw="text-red-400 text-xs mt-1">Amount exceeds 80% LTV limit</p>
-                )}
+                {borrowAmount &&
+                  collateral > 0 &&
+                  parseFloat(borrowAmount) > collateral * kalePrice * 0.8 && (
+                    <p tw="mt-1 text-red-400 text-xs">
+                      Amount exceeds 80% LTV limit
+                    </p>
+                  )}
                 {collateral <= 0 && (
-                  <p tw="text-yellow-400 text-xs mt-1">Supply collateral first to borrow</p>
+                  <p tw="mt-1 text-yellow-400 text-xs">
+                    Supply collateral first to borrow
+                  </p>
                 )}
                 {healthFactor < 1.1 && collateral > 0 && (
-                  <p tw="text-red-400 text-xs mt-1">Health factor too low to borrow</p>
+                  <p tw="mt-1 text-red-400 text-xs">
+                    Health factor too low to borrow
+                  </p>
                 )}
               </div>
             </div>
@@ -705,33 +784,52 @@ export const KaleFiLendingInterface: React.FC = () => {
       </div>
 
       {/* Health Factor and Risk Indicators */}
-      <div tw="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div tw="bg-gray-800 rounded-lg p-4 border border-gray-700">
-          <div tw="flex items-center gap-2 mb-2">
-            <div className={healthFactor >= 1.5 ? 'bg-green-400' : healthFactor >= 1.1 ? 'bg-yellow-400' : 'bg-red-400'} tw="w-3 h-3 rounded-full" />
+      <div tw="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div tw="rounded-lg border border-gray-700 bg-gray-800 p-4">
+          <div tw="mb-2 flex items-center gap-2">
+            <div
+              className={
+                healthFactor >= 1.5
+                  ? 'bg-green-400'
+                  : healthFactor >= 1.1
+                    ? 'bg-yellow-400'
+                    : 'bg-red-400'
+              }
+              tw="h-3 w-3 rounded-full"
+            />
             <span tw="text-gray-300">Health Factor</span>
           </div>
-          <p tw="text-white font-semibold">
-            {healthFactor >= 999 ? '∞ (Safe)' : healthFactor >= 1.5 ? 'Safe' : healthFactor >= 1.1 ? 'Warning' : 'Danger'}
+          <p tw="font-semibold text-white">
+            {healthFactor >= 999
+              ? '∞ (Safe)'
+              : healthFactor >= 1.5
+                ? 'Safe'
+                : healthFactor >= 1.1
+                  ? 'Warning'
+                  : 'Danger'}
           </p>
-          <p tw="text-gray-400 text-sm">{healthFactor >= 999 ? 'No debt' : healthFactor.toFixed(2)}</p>
+          <p tw="text-gray-400 text-sm">
+            {healthFactor >= 999 ? 'No debt' : healthFactor.toFixed(2)}
+          </p>
         </div>
 
-        <div tw="bg-gray-800 rounded-lg p-4 border border-gray-700">
-          <div tw="flex items-center gap-2 mb-2">
-            <div className={getLTVColor(ltv)} tw="w-3 h-3 rounded-full" />
+        <div tw="rounded-lg border border-gray-700 bg-gray-800 p-4">
+          <div tw="mb-2 flex items-center gap-2">
+            <div className={getLTVColor(ltv)} tw="h-3 w-3 rounded-full" />
             <span tw="text-gray-300">Loan-to-Value</span>
           </div>
-          <p tw="text-white font-semibold">{ltv.toFixed(1)}%</p>
+          <p tw="font-semibold text-white">{ltv.toFixed(1)}%</p>
           <p tw="text-gray-400 text-sm">Max: 80%</p>
         </div>
 
-        <div tw="bg-gray-800 rounded-lg p-4 border border-gray-700">
-          <div tw="flex items-center gap-2 mb-2">
-            <div tw="w-3 h-3 rounded-full bg-blue-400" />
+        <div tw="rounded-lg border border-gray-700 bg-gray-800 p-4">
+          <div tw="mb-2 flex items-center gap-2">
+            <div tw="h-3 w-3 rounded-full bg-blue-400" />
             <span tw="text-gray-300">Total Collateral</span>
           </div>
-          <p tw="text-white font-semibold">${(collateral * kalePrice).toFixed(2)}</p>
+          <p tw="font-semibold text-white">
+            ${(collateral * kalePrice).toFixed(2)}
+          </p>
           <p tw="text-gray-400 text-sm">{collateral.toFixed(4)} KALE</p>
         </div>
       </div>
@@ -744,8 +842,10 @@ export const KaleFiLendingInterface: React.FC = () => {
       {/* Connection Status */}
       {!address && (
         <div tw="mt-8 text-center">
-          <div tw="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4">
-            <p tw="text-yellow-400">Please connect your wallet to interact with KaleFi</p>
+          <div tw="rounded-lg border border-yellow-700 bg-yellow-900/20 p-4">
+            <p tw="text-yellow-400">
+              Please connect your wallet to interact with KaleFi
+            </p>
           </div>
         </div>
       )}
@@ -753,8 +853,8 @@ export const KaleFiLendingInterface: React.FC = () => {
       {/* Price Update Indicator */}
       {pricesLoading && (
         <div tw="mt-6 text-center">
-          <div tw="inline-flex items-center gap-2 bg-blue-900/20 border border-blue-700 rounded-lg px-4 py-2">
-            <div tw="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+          <div tw="inline-flex items-center gap-2 rounded-lg border border-blue-700 bg-blue-900/20 px-4 py-2">
+            <div tw="h-4 w-4 animate-spin rounded-full border-2 border-blue-400 border-t-transparent"></div>
             <span tw="text-blue-400 text-sm">Updating prices...</span>
           </div>
         </div>
@@ -764,7 +864,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       <div tw="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setShowSwapModal(true)}
-          tw="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-blue-500/50"
+          tw="transform rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white shadow-2xl transition-all duration-300 hover:(scale-110 from-blue-700 to-purple-700 shadow-blue-500/50)"
         >
           <FaExchangeAlt tw="text-2xl" />
         </button>
@@ -772,14 +872,14 @@ export const KaleFiLendingInterface: React.FC = () => {
 
       {/* Swap Modal */}
       {showSwapModal && (
-        <div tw="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div tw="bg-gray-800 rounded-2xl p-6 w-full max-w-md border border-gray-700">
+        <div tw="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div tw="w-full max-w-md rounded-2xl border border-gray-700 bg-gray-800 p-6">
             {/* Modal Header */}
-            <div tw="flex items-center justify-between mb-6">
-              <h2 tw="text-xl font-bold text-white">Swap Tokens</h2>
+            <div tw="mb-6 flex items-center justify-between">
+              <h2 tw="font-bold text-xl text-white">Swap Tokens</h2>
               <button
                 onClick={() => setShowSwapModal(false)}
-                tw="text-gray-400 hover:text-white transition-colors"
+                tw="text-gray-400 transition-colors hover:text-white"
               >
                 <FaTimes tw="text-xl" />
               </button>
@@ -788,19 +888,19 @@ export const KaleFiLendingInterface: React.FC = () => {
             {/* Swap Form */}
             <div tw="space-y-4">
               {/* From Token */}
-              <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-                <div tw="flex items-center justify-between mb-2">
+              <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+                <div tw="mb-2 flex items-center justify-between">
                   <span tw="text-gray-400 text-sm">From</span>
                   <span tw="text-gray-400 text-sm">Balance: 0.00</span>
                 </div>
                 <div tw="flex items-center gap-3">
-                  <div tw="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500">
                     <FaCoins className="text-white text-lg" />
                   </div>
                   <select
                     value={swapFromToken}
                     onChange={(e) => setSwapFromToken(e.target.value)}
-                    tw="bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    tw="rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white focus:(border-blue-500 outline-none)"
                   >
                     <option value="KALE">KALE</option>
                     <option value="USDC">USDC</option>
@@ -810,7 +910,7 @@ export const KaleFiLendingInterface: React.FC = () => {
                     value={swapAmount}
                     onChange={(e) => setSwapAmount(e.target.value)}
                     placeholder="0.0"
-                    tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white placeholder-gray-400 focus:(border-blue-500 outline-none)"
                   />
                 </div>
               </div>
@@ -819,37 +919,40 @@ export const KaleFiLendingInterface: React.FC = () => {
               <div tw="flex justify-center">
                 <button
                   onClick={toggleTokens}
-                  tw="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors"
+                  tw="rounded-full bg-gray-700 p-2 transition-colors hover:bg-gray-600"
                 >
                   <FaExchangeAlt className="text-gray-400" />
                 </button>
               </div>
 
               {/* To Token */}
-              <div tw="bg-gray-700 rounded-lg p-4 border border-gray-600">
-                <div tw="flex items-center justify-between mb-2">
+              <div tw="rounded-lg border border-gray-600 bg-gray-700 p-4">
+                <div tw="mb-2 flex items-center justify-between">
                   <span tw="text-gray-400 text-sm">To</span>
                   <span tw="text-gray-400 text-sm">Rate: 1 KALE = $0.50</span>
                 </div>
                 <div tw="flex items-center gap-3">
-                  <div tw="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <div tw="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
                     <FaDollarSign className="text-white text-lg" />
                   </div>
                   <select
                     value={swapToToken}
                     onChange={(e) => setSwapToToken(e.target.value)}
-                    tw="bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    tw="rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white focus:(border-blue-500 outline-none)"
                   >
                     <option value="USDC">USDC</option>
                     <option value="KALE">KALE</option>
                   </select>
-                  <div tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white">
-                    {swapAmount && swapFromToken === 'KALE' && swapToToken === 'USDC' 
+                  <div tw="flex-1 rounded-lg border border-gray-500 bg-gray-600 px-3 py-2 text-white">
+                    {swapAmount &&
+                    swapFromToken === 'KALE' &&
+                    swapToToken === 'USDC'
                       ? (parseFloat(swapAmount) * 0.5).toFixed(2)
-                      : swapAmount && swapFromToken === 'USDC' && swapToToken === 'KALE'
-                      ? (parseFloat(swapAmount) / 0.5).toFixed(4)
-                      : '0.00'
-                    }
+                      : swapAmount &&
+                          swapFromToken === 'USDC' &&
+                          swapToToken === 'KALE'
+                        ? (parseFloat(swapAmount) / 0.5).toFixed(4)
+                        : '0.00'}
                   </div>
                 </div>
               </div>
@@ -857,8 +960,10 @@ export const KaleFiLendingInterface: React.FC = () => {
               {/* Swap Button */}
               <button
                 onClick={handleSwap}
-                disabled={!swapAmount || parseFloat(swapAmount) <= 0 || !address}
-                tw="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300"
+                disabled={
+                  !swapAmount || parseFloat(swapAmount) <= 0 || !address
+                }
+                tw="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 py-3 px-4 font-semibold text-white transition-all duration-300 hover:(from-blue-700 to-purple-700) disabled:(cursor-not-allowed from-gray-600 to-gray-600)"
               >
                 {!address ? 'Connect Wallet' : 'Swap Tokens'}
               </button>

@@ -14,7 +14,9 @@ export const HomeTopBar: FC = () => {
           <span tw="mr-1 hidden sm:inline">VIDEO</span>▶
         </div>
         <div tw="font-bold">
-          <span tw="hidden sm:inline">Watch the sub0 ink!athon workshop (45 min)</span>
+          <span tw="hidden sm:inline">
+            Watch the sub0 ink!athon workshop (45 min)
+          </span>
           <span tw="inline sm:hidden">sub0 ink!athon workshop</span>
         </div>
         <HiOutlineExternalLink tw="ml-1.5" />

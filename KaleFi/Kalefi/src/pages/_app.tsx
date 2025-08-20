@@ -9,7 +9,7 @@ import type { AppProps } from 'next/app'
 import { Inconsolata } from 'next/font/google'
 import Head from 'next/head'
 
-import MySorobanReactProvider from "../components/web3/MySorobanReactProvider"
+import MySorobanReactProvider from '../components/web3/MySorobanReactProvider'
 
 // Google Font(s) via `next/font`
 const inconsolata = Inconsolata({ subsets: ['latin'] })

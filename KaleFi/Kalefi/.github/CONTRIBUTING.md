@@ -5,6 +5,7 @@ Obrigado por considerar contribuir para o KaleFi! Este documento fornece diretri
 ## 📋 Pré-requisitos
 
 Antes de contribuir, certifique-se de ter:
+
 - [Rust](https://rustup.rs/) 1.70+ instalado
 - [Node.js](https://nodejs.org/) 18+ instalado
 - [Yarn](https://yarnpkg.com/) ou npm instalado
@@ -14,19 +15,21 @@ Antes de contribuir, certifique-se de ter:
 ## 🚀 Primeiros Passos
 
 1. **Fork o repositório**
+
    ```bash
    git clone https://github.com/seu-usuario/kalefi.git
    cd kalefi
    ```
 
 2. **Configure o ambiente de desenvolvimento**
+
    ```bash
    # Instale dependências do frontend
    yarn install
-   
+
    # Adicione o target Rust para WASM
    rustup target add wasm32-unknown-unknown
-   
+
    # Configure o Soroban CLI
    soroban config network add --global testnet https://soroban-testnet.stellar.org
    ```
@@ -52,6 +55,7 @@ kalefi/
 ## 📝 Padrões de Código
 
 ### Rust (Smart Contracts)
+
 - Use `cargo fmt` para formatação
 - Use `cargo clippy` para linting
 - Siga as [convenções Rust](https://rust-lang.github.io/api-guidelines/)
@@ -59,6 +63,7 @@ kalefi/
 - Mantenha testes com cobertura >90%
 
 ### TypeScript/React (Frontend)
+
 - Use `yarn lint` e `yarn lint:fix`
 - Siga as [convenções TypeScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 - Use componentes funcionais com hooks
@@ -67,17 +72,20 @@ kalefi/
 ## 🧪 Testes
 
 ### Testes dos Contratos
+
 ```bash
 cd contracts/kalefi
 cargo test
 ```
 
 ### Testes do Frontend
+
 ```bash
 yarn test
 ```
 
 ### Testes de Integração
+
 ```bash
 cd contracts
 yarn test:integration
@@ -93,12 +101,14 @@ yarn test:integration
 ## 📦 Deploy e Testes
 
 ### Testnet
+
 ```bash
 cd contracts
 ./deploy_on_testnet.sh kalefi
 ```
 
 ### Verificação Local
+
 ```bash
 # Compile os contratos
 make
@@ -153,6 +163,7 @@ yarn test
 ## 🏆 Reconhecimento
 
 Contribuições significativas serão reconhecidas:
+
 - Menção no README.md
 - Badge de contribuidor
 - Acesso ao repositório (para contribuidores ativos)

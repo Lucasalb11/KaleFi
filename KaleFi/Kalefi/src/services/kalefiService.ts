@@ -53,13 +53,25 @@ export class KalefiService {
   /**
    * Check user's health factor
    */
-  checkHealthFactor(_userAddress: string): Promise<{ collateralValue: number; debtValue: number; healthFactor: number }> {
+  checkHealthFactor(_userAddress: string): Promise<{
+    collateralValue: number
+    debtValue: number
+    healthFactor: number
+  }> {
     try {
       // Return mock data for now
-      return Promise.resolve({ collateralValue: 0, debtValue: 0, healthFactor: 999 })
+      return Promise.resolve({
+        collateralValue: 0,
+        debtValue: 0,
+        healthFactor: 999,
+      })
     } catch (error) {
       console.error('Error checking health factor:', error)
-      return Promise.resolve({ collateralValue: 0, debtValue: 0, healthFactor: 999 })
+      return Promise.resolve({
+        collateralValue: 0,
+        debtValue: 0,
+        healthFactor: 999,
+      })
     }
   }
 

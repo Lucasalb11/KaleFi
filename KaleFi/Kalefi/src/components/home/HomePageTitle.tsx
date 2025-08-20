@@ -8,7 +8,7 @@ export const HomePageTitle: FC = () => {
   return (
     <div tw="flex flex-col items-center text-center font-mono">
       {/* Título principal */}
-      <h1 tw="font-black text-[3rem] text-white">{title}</h1>
+      <h1 tw="font-black text-white text-[3rem]">{title}</h1>
 
       {/* Descrição */}
       <p tw="mt-3 text-gray-400 text-base">{desc}</p>

@@ -9,9 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node16",
     "outDir": "./dist",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
-  "include": [
-    "scripts", "greeting/greeting.test.ts",
-  ],
+  "include": ["scripts", "greeting/greeting.test.ts"]
 }

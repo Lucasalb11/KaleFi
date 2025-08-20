@@ -1,31 +1,37 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export class AddressBook {
-  private ids: Map<string, string>;
-  private hashes: Map<string, string>;
-  private fileName: string;
-  private deployments: Array<any>;
-  private loadedConfig: any;
-  private deploymentsFilePath: string;
+  private ids: Map<string, string>
+  private hashes: Map<string, string>
+  private fileName: string
+  private deployments: Array<any>
+  private loadedConfig: any
+  private deploymentsFilePath: string
 
-  constructor(ids: Map<string, string>, hashes: Map<string, string>, fileName: string, loadedConfig: any) {
-    this.ids = ids;
-    this.hashes = hashes;
-    this.fileName = fileName;
+  constructor(
+    ids: Map<string, string>,
+    hashes: Map<string, string>,
+    fileName: string,
+    loadedConfig: any
+  ) {
+    this.ids = ids
+    this.hashes = hashes
+    this.fileName = fileName
 
-    this.loadedConfig = loadedConfig;
-    const dirPath = path.join(__dirname, '../../');
-    this.deploymentsFilePath = path.join(dirPath, 'deployments.json');
+    this.loadedConfig = loadedConfig
+    const dirPath = path.join(__dirname, '../../')
+    this.deploymentsFilePath = path.join(dirPath, 'deployments.json')
     if (!existsSync(this.deploymentsFilePath)) {
-      writeFileSync(this.deploymentsFilePath, JSON.stringify([]));
+      writeFileSync(this.deploymentsFilePath, JSON.stringify([]))
     }
-    this.deployments = JSON.parse(readFileSync(this.deploymentsFilePath, 'utf-8'));
+    this.deployments = JSON.parse(
+      readFileSync(this.deploymentsFilePath, 'utf-8')
+    )
   }
 
   /**
@@ -34,29 +40,36 @@ export class AddressBook {
    * @param network - The network to load the contracts for
    * @returns Contracts object loaded based on the network
    */
-  static loadFromFile(network: string, loadedConfig: any, folder: string = '.soroban') {
-    const fileName = `../../${folder}/${network}.contracts.json`;
+  static loadFromFile(
+    network: string,
+    loadedConfig: any,
+    folder: string = '.soroban'
+  ) {
+    const fileName = `../../${folder}/${network}.contracts.json`
     try {
-      const contractFile = readFileSync(path.join(__dirname, fileName));
-      const contractObj = JSON.parse(contractFile.toString());
+      const contractFile = readFileSync(path.join(__dirname, fileName))
+      const contractObj = JSON.parse(contractFile.toString())
       return new AddressBook(
         new Map(Object.entries(contractObj.ids)),
         new Map(Object.entries(contractObj.hashes)),
         fileName,
         loadedConfig
-      );
+      )
     } catch {
       // unable to load file, it likely doesn't exist
-      return new AddressBook(new Map(), new Map(), fileName, loadedConfig);
+      return new AddressBook(new Map(), new Map(), fileName, loadedConfig)
     }
   }
 
   updateDeployments(contractkey: string) {
-    var updated = false;
+    var updated = false
     this.deployments.forEach((deploymentInfo: any) => {
-      if (deploymentInfo.contractId == contractkey && deploymentInfo.networkPassphrase == this.loadedConfig.passphrase){
-        deploymentInfo.contractAddress = this.ids.get(contractkey);
-        updated = true;
+      if (
+        deploymentInfo.contractId == contractkey &&
+        deploymentInfo.networkPassphrase == this.loadedConfig.passphrase
+      ) {
+        deploymentInfo.contractAddress = this.ids.get(contractkey)
+        updated = true
       }
     })
 
@@ -64,7 +77,7 @@ export class AddressBook {
       this.deployments.push({
         contractId: contractkey,
         networkPassphrase: this.loadedConfig.passphrase,
-        contractAddress: this.ids.get(contractkey)
+        contractAddress: this.ids.get(contractkey),
       })
     }
   }
@@ -73,46 +86,46 @@ export class AddressBook {
    * Write the current address book to a file
    */
   writeToFile() {
-    const dirPath = path.join(__dirname, '../../.soroban/');
-    const filePath = path.join(__dirname, this.fileName);
+    const dirPath = path.join(__dirname, '../../.soroban/')
+    const filePath = path.join(__dirname, this.fileName)
 
     if (!existsSync(dirPath)) {
-      mkdirSync(dirPath, { recursive: true });
+      mkdirSync(dirPath, { recursive: true })
     }
 
     const newFile = JSON.stringify(
       {
         ids: this.ids,
-        hashes: this.hashes
+        hashes: this.hashes,
       },
       (key, value) => {
         if (value instanceof Map) {
-          return Object.fromEntries(value);
+          return Object.fromEntries(value)
         } else {
           // Use strict inequality
-          return value;
+          return value
         }
       },
       2
-    );
+    )
 
-    writeFileSync(filePath, newFile);
-    
+    writeFileSync(filePath, newFile)
+
     // Do the same with updated deployments.json
     const newDeploymentFile = JSON.stringify(
       this.deployments,
       (key, value) => {
         if (value instanceof Map) {
-          return Object.fromEntries(value);
+          return Object.fromEntries(value)
         } else {
           // Use strict inequality
-          return value;
+          return value
         }
       },
       2
     )
-    
-    writeFileSync(this.deploymentsFilePath, newDeploymentFile);
+
+    writeFileSync(this.deploymentsFilePath, newDeploymentFile)
   }
 
   /**
@@ -121,7 +134,7 @@ export class AddressBook {
    * @returns true if contract exists, false otherwise
    */
   hasContract(contractKey: string): boolean {
-    return this.ids.has(contractKey);
+    return this.ids.has(contractKey)
   }
 
   /**
@@ -130,13 +143,15 @@ export class AddressBook {
    * @returns Hex encoded contractId
    */
   getContractId(contractKey: string) {
-    const contractId = this.ids.get(contractKey);
+    const contractId = this.ids.get(contractKey)
 
     if (contractId != undefined) {
-      return contractId;
+      return contractId
     } else {
-      console.error(`unable to find address for ${contractKey} in ${this.fileName}`);
-      throw Error();
+      console.error(
+        `unable to find address for ${contractKey} in ${this.fileName}`
+      )
+      throw Error()
     }
   }
 
@@ -146,7 +161,7 @@ export class AddressBook {
    * @param contractId Hex encoded contractId
    */
   setContractId(contractKey: string, contractId: string) {
-    this.ids.set(contractKey, contractId);
+    this.ids.set(contractKey, contractId)
 
     // We update the deployments.json file used for contract registry
     this.updateDeployments(contractKey)
@@ -158,13 +173,15 @@ export class AddressBook {
    * @returns Hex encoded wasmHash
    */
   getWasmHash(contractKey: string) {
-    const washHash = this.hashes.get(contractKey);
+    const washHash = this.hashes.get(contractKey)
 
     if (washHash != undefined) {
-      return washHash;
+      return washHash
     } else {
-      console.error(`unable to find hash for ${contractKey} in ${this.fileName}`);
-      throw Error();
+      console.error(
+        `unable to find hash for ${contractKey} in ${this.fileName}`
+      )
+      throw Error()
     }
   }
 
@@ -174,6 +191,6 @@ export class AddressBook {
    * @param wasmHash - Hex encoded wasmHash
    */
   setWasmHash(contractKey: string, wasmHash: string) {
-    this.hashes.set(contractKey, wasmHash);
+    this.hashes.set(contractKey, wasmHash)
   }
 }

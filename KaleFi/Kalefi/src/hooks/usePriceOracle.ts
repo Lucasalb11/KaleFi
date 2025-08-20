@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react'
-import { priceOracle, type PriceData, type TokenPrice } from '@/services/priceOracle'
+import {
+  priceOracle,
+  type PriceData,
+  type TokenPrice,
+} from '@/services/priceOracle'
 
 export const usePriceOracle = () => {
-  const [prices, setPrices] = useState<PriceData>(priceOracle.getCurrentPrices())
+  const [prices, setPrices] = useState<PriceData>(
+    priceOracle.getCurrentPrices()
+  )
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -19,17 +25,29 @@ export const usePriceOracle = () => {
     return priceOracle.getTokenPrice(symbol)
   }
 
-  const calculatePriceImpact = (symbol: string, amount: number, isBuy: boolean): number => {
+  const calculatePriceImpact = (
+    symbol: string,
+    amount: number,
+    isBuy: boolean
+  ): number => {
     return priceOracle.calculatePriceImpact(symbol, amount, isBuy)
   }
 
-  const getHistoricalPrices = async (symbol: string, days: number) => {
+  const getHistoricalPrices = (symbol: string, days: number) => {
     setIsLoading(true)
     try {
-      const data = await priceOracle.getHistoricalPrices(symbol, days)
-      return data
-    } finally {
+      // For now, return mock data
+      // TODO: Implement actual historical data fetching
+      const mockData = Array.from({ length: days }, (_, i) => ({
+        timestamp: Date.now() - (days - i) * 24 * 60 * 60 * 1000,
+        price: 0.5 + Math.random() * 0.1, // Mock price between 0.5 and 0.6
+      }))
+
       setIsLoading(false)
+      return Promise.resolve(mockData)
+    } catch (error) {
+      setIsLoading(false)
+      return Promise.reject(error)
     }
   }
 
@@ -38,6 +56,6 @@ export const usePriceOracle = () => {
     isLoading,
     getTokenPrice,
     calculatePriceImpact,
-    getHistoricalPrices
+    getHistoricalPrices,
   }
 }

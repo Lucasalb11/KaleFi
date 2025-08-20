@@ -19,11 +19,13 @@ KaleFi é um protocolo DeFi inovador construído na blockchain Stellar usando co
 ## 🏗️ Arquitetura
 
 ### Smart Contracts (Rust + Soroban)
+
 - **KaleFi**: Contrato principal do protocolo
 - **Token Contracts**: Tokens KALE e USDC na rede Stellar
 - **Sistema de Preços**: Oracle de preços para valoração de colaterais
 
 ### Frontend (Next.js + React)
+
 - Interface web moderna e responsiva
 - Integração com carteiras Stellar (Freighter)
 - Visualização de posições e health factors
@@ -49,12 +51,14 @@ KaleFi é um protocolo DeFi inovador construído na blockchain Stellar usando co
 ## 🚀 Instalação e Configuração
 
 ### 1. Clone o repositório
+
 ```bash
 git clone https://github.com/seu-usuario/kalefi.git
 cd kalefi
 ```
 
 ### 2. Instale as dependências
+
 ```bash
 # Dependências do frontend
 yarn install
@@ -64,6 +68,7 @@ rustup target add wasm32-unknown-unknown
 ```
 
 ### 3. Configure o ambiente
+
 ```bash
 # Configure o Soroban CLI
 soroban config network add --global testnet https://soroban-testnet.stellar.org
@@ -75,12 +80,14 @@ cp .env.example .env.local
 ```
 
 ### 4. Compile os contratos
+
 ```bash
 cd contracts
 make
 ```
 
 ### 5. Execute o frontend
+
 ```bash
 yarn dev
 ```
@@ -90,19 +97,23 @@ O DApp estará disponível em `http://localhost:3000`
 ## 📚 Uso do Protocolo
 
 ### 1. Conecte sua carteira
+
 - Use Freighter ou outra carteira compatível com Stellar
 - Certifique-se de ter tokens de teste na rede desejada
 
 ### 2. Deposite colateral
+
 - Selecione a quantidade de tokens KALE para depositar
 - Confirme a transação na sua carteira
 
 ### 3. Tome um empréstimo
+
 - Verifique seu health factor atual
 - Escolha a quantidade de USDC para emprestar
 - Confirme a transação
 
 ### 4. Monitore sua posição
+
 - Acompanhe seu health factor em tempo real
 - Visualize o valor do colateral e dívida
 
@@ -116,17 +127,20 @@ O DApp estará disponível em `http://localhost:3000`
 ## 🧪 Testes
 
 ### Testes dos Contratos
+
 ```bash
 cd contracts/kalefi
 cargo test
 ```
 
 ### Testes do Frontend
+
 ```bash
 yarn test
 ```
 
 ### Testes de Integração
+
 ```bash
 cd contracts
 yarn test:integration
@@ -135,12 +149,14 @@ yarn test:integration
 ## 📦 Deploy
 
 ### Testnet
+
 ```bash
 cd contracts
 ./deploy_on_testnet.sh kalefi
 ```
 
 ### Mainnet
+
 ```bash
 cd contracts
 ./deploy_on_mainnet.sh kalefi
@@ -155,6 +171,7 @@ cd contracts
 5. Abra um Pull Request
 
 ### Padrões de Código
+
 - Siga as convenções Rust para contratos
 - Use TypeScript strict mode para o frontend
 - Mantenha testes com cobertura >90%

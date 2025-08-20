@@ -1,45 +1,59 @@
 // import { randomBytes } from 'crypto';
-import { randomBytes } from 'crypto';
-import { existsSync, readFileSync } from 'fs';
-import path from 'path';
-import { Address, Asset, Contract, Keypair, Operation, StrKey, hash, scValToNative, xdr } from '@stellar/stellar-sdk';
-import { fileURLToPath } from 'url';
-import { AddressBook } from './address_book.js';
-import { config } from './env_config.js';
-import { createTxBuilder, invoke, invokeTransaction } from './tx.js';
+import { randomBytes } from 'crypto'
+import { existsSync, readFileSync } from 'fs'
+import path from 'path'
+import {
+  Address,
+  Asset,
+  Contract,
+  Keypair,
+  Operation,
+  StrKey,
+  hash,
+  scValToNative,
+  xdr,
+} from '@stellar/stellar-sdk'
+import { fileURLToPath } from 'url'
+import { AddressBook } from './address_book.js'
+import { config } from './env_config.js'
+import { createTxBuilder, invoke, invokeTransaction } from './tx.js'
 
-const network = process.argv[2];
-const loadedConfig = config(network);
+const network = process.argv[2]
+const loadedConfig = config(network)
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-export async function installContract(wasmKey: string, addressBook: AddressBook, source: Keypair) {
+export async function installContract(
+  wasmKey: string,
+  addressBook: AddressBook,
+  source: Keypair
+) {
   // Use the WASM files from .soroban directory (copied by Makefile)
-  let wasmFileName: string;
-  
+  let wasmFileName: string
+
   if (wasmKey === 'token') {
-    wasmFileName = 'token.optimized.wasm';
+    wasmFileName = 'token.optimized.wasm'
   } else {
-    wasmFileName = `${wasmKey}.optimized.wasm`;
+    wasmFileName = `${wasmKey}.optimized.wasm`
   }
-  
-  const contract_wasm_path = path.join(__dirname, `../.soroban/${wasmFileName}`);
-  
+
+  const contract_wasm_path = path.join(__dirname, `../.soroban/${wasmFileName}`)
+
   if (!existsSync(contract_wasm_path)) {
     const error = `The wasm file for contract ${wasmKey} cannot be found at ${contract_wasm_path}. Make sure to run 'make build' first.`
-    throw new Error(error);
+    throw new Error(error)
   }
-  const contractWasm = readFileSync(contract_wasm_path);
-  const wasmHash = hash(contractWasm);
-  addressBook.setWasmHash(wasmKey, wasmHash.toString('hex'));
-  console.log('Installing:', wasmKey, wasmHash.toString('hex'));
+  const contractWasm = readFileSync(contract_wasm_path)
+  const wasmHash = hash(contractWasm)
+  addressBook.setWasmHash(wasmKey, wasmHash.toString('hex'))
+  console.log('Installing:', wasmKey, wasmHash.toString('hex'))
   const op = Operation.invokeHostFunction({
     func: xdr.HostFunction.hostFunctionTypeUploadContractWasm(contractWasm),
     auth: [],
-  });
-  addressBook.writeToFile();
-  await invoke(op, source, false);
+  })
+  addressBook.writeToFile()
+  await invoke(op, source, false)
 }
 
 export async function deployContract(
@@ -48,34 +62,35 @@ export async function deployContract(
   addressBook: AddressBook,
   source: Keypair
 ) {
-  const contractIdSalt = randomBytes(32);
-  const networkId = hash(Buffer.from(loadedConfig.passphrase));
-  const contractIdPreimage = xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-    new xdr.ContractIdPreimageFromAddress({
-      address: Address.fromString(source.publicKey()).toScAddress(),
-      salt: contractIdSalt,
-    })
-  );
+  const contractIdSalt = randomBytes(32)
+  const networkId = hash(Buffer.from(loadedConfig.passphrase))
+  const contractIdPreimage =
+    xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+      new xdr.ContractIdPreimageFromAddress({
+        address: Address.fromString(source.publicKey()).toScAddress(),
+        salt: contractIdSalt,
+      })
+    )
 
   const hashIdPreimage = xdr.HashIdPreimage.envelopeTypeContractId(
     new xdr.HashIdPreimageContractId({
       networkId: networkId,
       contractIdPreimage: contractIdPreimage,
     })
-  );
-  console.log('Deploying WASM', wasmKey, 'for', contractKey);
-  const contractId = StrKey.encodeContract(hash(hashIdPreimage.toXDR()));
-  addressBook.setContractId(contractKey, contractId);
-  const wasmHash = Buffer.from(addressBook.getWasmHash(contractKey), 'hex');//@param contractKey - The name of the contract
+  )
+  console.log('Deploying WASM', wasmKey, 'for', contractKey)
+  const contractId = StrKey.encodeContract(hash(hashIdPreimage.toXDR()))
+  addressBook.setContractId(contractKey, contractId)
+  const wasmHash = Buffer.from(addressBook.getWasmHash(contractKey), 'hex') //@param contractKey - The name of the contract
 
   const deployFunction = xdr.HostFunction.hostFunctionTypeCreateContract(
     new xdr.CreateContractArgs({
       contractIdPreimage: contractIdPreimage,
       executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash),
     })
-  );
+  )
 
-  addressBook.writeToFile();
+  addressBook.writeToFile()
   let result = await invoke(
     Operation.invokeHostFunction({
       func: deployFunction,
@@ -83,12 +98,11 @@ export async function deployContract(
     }),
     loadedConfig.admin,
     false
-  );
+  )
   if (result) {
     return contractId
   }
 }
-
 
 export async function invokeContract(
   contractKey: string,
@@ -97,16 +111,12 @@ export async function invokeContract(
   params: xdr.ScVal[],
   source: Keypair
 ) {
-  console.log("Invoking contract: ", contractKey, " with method: ", method);
-  const contractAddress = addressBook.getContractId(contractKey);
-  const contractInstance = new Contract(contractAddress);
+  console.log('Invoking contract: ', contractKey, ' with method: ', method)
+  const contractAddress = addressBook.getContractId(contractKey)
+  const contractInstance = new Contract(contractAddress)
 
-  const contractOperation = contractInstance.call(method, ...params);
-  return await invoke(
-    contractOperation,
-    source,
-    false,
-  );  
+  const contractOperation = contractInstance.call(method, ...params)
+  return await invoke(contractOperation, source, false)
 }
 
 export async function invokeCustomContract(
@@ -115,35 +125,33 @@ export async function invokeCustomContract(
   params: xdr.ScVal[],
   source: Keypair
 ) {
-  console.log("Invoking contract: ", contractId, " with method: ", method);
-  const contractInstance = new Contract(contractId);
+  console.log('Invoking contract: ', contractId, ' with method: ', method)
+  const contractInstance = new Contract(contractId)
 
-  const contractOperation = contractInstance.call(method, ...params);
-  return await invoke(
-    contractOperation,
-    source,
-    false,
-  );  
+  const contractOperation = contractInstance.call(method, ...params)
+  return await invoke(contractOperation, source, false)
 }
 
 export async function deployStellarAsset(asset: Asset, source: Keypair) {
-  const xdrAsset = asset.toXDRObject();
-  const networkId = hash(Buffer.from(loadedConfig.passphrase));
+  const xdrAsset = asset.toXDRObject()
+  const networkId = hash(Buffer.from(loadedConfig.passphrase))
   const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
     new xdr.HashIdPreimageContractId({
       networkId: networkId,
-      contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
+      contractIdPreimage:
+        xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
     })
-  );
-  const contractId = StrKey.encodeContract(hash(preimage.toXDR()));
-  console.log('🚀 « deployed Stellar Asset:', contractId);
+  )
+  const contractId = StrKey.encodeContract(hash(preimage.toXDR()))
+  console.log('🚀 « deployed Stellar Asset:', contractId)
 
   const deployFunction = xdr.HostFunction.hostFunctionTypeCreateContract(
     new xdr.CreateContractArgs({
-      contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
+      contractIdPreimage:
+        xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
       executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
     })
-  );
+  )
   return await invoke(
     Operation.invokeHostFunction({
       func: deployFunction,
@@ -151,7 +159,7 @@ export async function deployStellarAsset(asset: Asset, source: Keypair) {
     }),
     source,
     false
-  );
+  )
 }
 
 export async function bumpContractInstance(
@@ -159,15 +167,15 @@ export async function bumpContractInstance(
   addressBook: AddressBook,
   source: Keypair
 ) {
-  const address = Address.fromString(addressBook.getContractId(contractKey));
-  console.log('bumping contract instance: ', address.toString());
+  const address = Address.fromString(addressBook.getContractId(contractKey))
+  console.log('bumping contract instance: ', address.toString())
   const contractInstanceXDR = xdr.LedgerKey.contractData(
     new xdr.LedgerKeyContractData({
       contract: address.toScAddress(),
       key: xdr.ScVal.scvLedgerKeyContractInstance(),
       durability: xdr.ContractDataDurability.persistent(),
     })
-  );
+  )
   const bumpTransactionData = new xdr.SorobanTransactionData({
     resources: new xdr.SorobanResources({
       footprint: new xdr.LedgerFootprint({
@@ -182,24 +190,28 @@ export async function bumpContractInstance(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     ext: new xdr.ExtensionPoint(0),
-  });
+  })
 
-  const txBuilder = await createTxBuilder(source);
-  txBuilder.addOperation(Operation.extendFootprintTtl({ extendTo: 535670 })); // 1 year
-  txBuilder.setSorobanData(bumpTransactionData);
-  const result = await invokeTransaction(txBuilder.build(), source, false);
+  const txBuilder = await createTxBuilder(source)
+  txBuilder.addOperation(Operation.extendFootprintTtl({ extendTo: 535670 })) // 1 year
+  txBuilder.setSorobanData(bumpTransactionData)
+  const result = await invokeTransaction(txBuilder.build(), source, false)
   // @ts-ignore
-  console.log(result.status, '\n');
+  console.log(result.status, '\n')
 }
 
-export async function bumpContractCode(wasmKey: string, addressBook: AddressBook, source: Keypair) {
-  console.log('bumping contract code: ', wasmKey);
-  const wasmHash = Buffer.from(addressBook.getWasmHash(wasmKey), 'hex');
+export async function bumpContractCode(
+  wasmKey: string,
+  addressBook: AddressBook,
+  source: Keypair
+) {
+  console.log('bumping contract code: ', wasmKey)
+  const wasmHash = Buffer.from(addressBook.getWasmHash(wasmKey), 'hex')
   const contractCodeXDR = xdr.LedgerKey.contractCode(
     new xdr.LedgerKeyContractCode({
       hash: wasmHash,
     })
-  );
+  )
   const bumpTransactionData = new xdr.SorobanTransactionData({
     resources: new xdr.SorobanResources({
       footprint: new xdr.LedgerFootprint({
@@ -214,23 +226,26 @@ export async function bumpContractCode(wasmKey: string, addressBook: AddressBook
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     ext: new xdr.ExtensionPoint(0),
-  });
+  })
 
-  const txBuilder = await createTxBuilder(source);
-  txBuilder.addOperation(Operation.extendFootprintTtl({ extendTo: 535670 })); // 1 year
-  txBuilder.setSorobanData(bumpTransactionData);
-  const result = await invokeTransaction(txBuilder.build(), source, false);
-  console.log("Result = ", result)
+  const txBuilder = await createTxBuilder(source)
+  txBuilder.addOperation(Operation.extendFootprintTtl({ extendTo: 535670 })) // 1 year
+  txBuilder.setSorobanData(bumpTransactionData)
+  const result = await invokeTransaction(txBuilder.build(), source, false)
+  console.log('Result = ', result)
   // @ts-expect-error ignore
-  console.log(result.status, '\n');
+  console.log(result.status, '\n')
 }
 
 export async function airdropAccount(user: Keypair, network?: string) {
   try {
-    await loadedConfig.rpc.requestAirdrop(user.publicKey(), loadedConfig.friendbot);
-    console.log('Funded: ', user.publicKey());
+    await loadedConfig.rpc.requestAirdrop(
+      user.publicKey(),
+      loadedConfig.friendbot
+    )
+    console.log('Funded: ', user.publicKey())
   } catch (e) {
-    console.log(user.publicKey(), ' already funded');
+    console.log(user.publicKey(), ' already funded')
   }
 }
 
@@ -239,30 +254,31 @@ export async function deploySorobanToken(
   addressBook: AddressBook,
   source: Keypair
 ) {
-  const contractIdSalt = randomBytes(32);
-  const networkId = hash(Buffer.from(loadedConfig.passphrase));
-  const contractIdPreimage = xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-    new xdr.ContractIdPreimageFromAddress({
-      address: Address.fromString(source.publicKey()).toScAddress(),
-      salt: contractIdSalt,
-    })
-  );
+  const contractIdSalt = randomBytes(32)
+  const networkId = hash(Buffer.from(loadedConfig.passphrase))
+  const contractIdPreimage =
+    xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+      new xdr.ContractIdPreimageFromAddress({
+        address: Address.fromString(source.publicKey()).toScAddress(),
+        salt: contractIdSalt,
+      })
+    )
 
   const hashIdPreimage = xdr.HashIdPreimage.envelopeTypeContractId(
     new xdr.HashIdPreimageContractId({
       networkId: networkId,
       contractIdPreimage: contractIdPreimage,
     })
-  );
-  const contractId = StrKey.encodeContract(hash(hashIdPreimage.toXDR()));
-  const wasmHash = Buffer.from(addressBook.getWasmHash(wasmKey), 'hex');
+  )
+  const contractId = StrKey.encodeContract(hash(hashIdPreimage.toXDR()))
+  const wasmHash = Buffer.from(addressBook.getWasmHash(wasmKey), 'hex')
 
   const deployFunction = xdr.HostFunction.hostFunctionTypeCreateContract(
     new xdr.CreateContractArgs({
       contractIdPreimage: contractIdPreimage,
       executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash),
     })
-  );
+  )
 
   // addressBook.writeToFile();
   const result = await invoke(
@@ -272,27 +288,30 @@ export async function deploySorobanToken(
     }),
     source,
     false
-  );
+  )
 
   if (result) {
-    return contractId;
+    return contractId
   }
 }
 
-export async function getTokenBalance(contractId: string, from: string, source: Keypair) {
+export async function getTokenBalance(
+  contractId: string,
+  from: string,
+  source: Keypair
+) {
+  const tokenContract = new Contract(contractId)
+  const op = tokenContract.call('balance', new Address(from).toScVal())
 
-  const tokenContract = new Contract(contractId);
-  const op = tokenContract.call("balance", new Address(from).toScVal());
-  
-  const result = await invoke(op, source, true);
-  const parsedResult = scValToNative(result.result.retval).toString();
-  
-  if(!parsedResult) {
-      throw new Error("The operation has no result.");
+  const result = await invoke(op, source, true)
+  const parsedResult = scValToNative(result.result.retval).toString()
+
+  if (!parsedResult) {
+    throw new Error('The operation has no result.')
   }
-  if(parsedResult == 0) {
-      return parsedResult
+  if (parsedResult == 0) {
+    return parsedResult
   }
-  const resultNumber = parseInt(parsedResult.slice(0, -1));
-  return resultNumber;
+  const resultNumber = parseInt(parsedResult.slice(0, -1))
+  return resultNumber
 }

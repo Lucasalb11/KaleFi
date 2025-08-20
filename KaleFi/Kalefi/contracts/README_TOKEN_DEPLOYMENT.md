@@ -5,15 +5,17 @@ Este guia explica como fazer o deploy dos tokens KALE e USDC necessários para o
 ## 📋 Pré-requisitos
 
 1. **Soroban CLI instalado e configurado**
+
    ```bash
    # Verificar instalação
    soroban --version
-   
+
    # Verificar redes disponíveis
    soroban config network ls
    ```
 
 2. **Contratos compilados**
+
    ```bash
    make build
    ```
@@ -76,19 +78,21 @@ npx tsx scripts/deploy_tokens_only.ts futurenet
 
 ## 📊 Tokens Deployados
 
-| Token | Símbolo | Decimais | Supply Inicial | Endereço |
-|-------|---------|----------|----------------|----------|
+| Token | Símbolo | Decimais | Supply Inicial | Endereço     |
+| ----- | ------- | -------- | -------------- | ------------ |
 | KALE  | KALE    | 7        | 1000           | `kale_token` |
 | USDC  | USDC    | 6        | 10000          | `usdc_token` |
 
 ## 🔍 Verificação do Deploy
 
 ### 1. Verificar Address Book
+
 ```bash
 cat .soroban/standalone.contracts.json
 ```
 
 ### 2. Verificar Balanços
+
 ```bash
 # Verificar balanço KALE
 stellar contract invoke --network standalone --source admin --id <KALE_TOKEN_ID> -- balance --id <ADMIN_ADDRESS>
@@ -98,6 +102,7 @@ stellar contract invoke --network standalone --source admin --id <USDC_TOKEN_ID>
 ```
 
 ### 3. Verificar Metadados
+
 ```bash
 # Verificar metadados KALE
 stellar contract invoke --network standalone --source admin --id <KALE_TOKEN_ID> -- name
@@ -113,23 +118,27 @@ stellar contract invoke --network standalone --source admin --id <USDC_TOKEN_ID>
 ## 🚨 Troubleshooting
 
 ### Erro: "Token WASM not found"
+
 ```bash
 make build
 ```
 
 ### Erro: "Insufficient balance"
+
 ```bash
 # Para standalone, o airdrop é automático
 # Para outras redes, adicione XLM manualmente
 ```
 
 ### Erro: "Contract already exists"
+
 ```bash
 # Os tokens já foram deployados
 # Verifique o address book ou use make clean para redeploy
 ```
 
 ### Erro: "Network not found"
+
 ```bash
 # Verificar redes disponíveis
 soroban config network ls
@@ -143,11 +152,13 @@ soroban config network add testnet --rpc-url https://soroban-testnet.stellar.org
 Após o deploy dos tokens:
 
 1. **Deploy do Contrato KaleFi**
+
    ```bash
    make deploy-kalefi
    ```
 
 2. **Deploy Completo**
+
    ```bash
    make deploy-all
    ```
@@ -200,5 +211,3 @@ Se encontrar problemas:
 ---
 
 **Nota**: Os tokens devem ser deployados ANTES do contrato principal KaleFi, pois ele depende dos seus endereços para inicialização.
-
-

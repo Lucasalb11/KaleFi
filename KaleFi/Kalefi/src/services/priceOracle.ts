@@ -22,20 +22,22 @@ const MOCK_PRICES: PriceData = {
     price: 0.85,
     timestamp: Date.now(),
     change24h: 2.5,
-    volume24h: 1250000
+    volume24h: 1250000,
   },
   USDC: {
     symbol: 'USDC',
-    price: 1.00,
+    price: 1.0,
     timestamp: Date.now(),
     change24h: 0.0,
-    volume24h: 50000000
-  }
+    volume24h: 50000000,
+  },
 }
 
 class PriceOracleService {
   private prices: PriceData = MOCK_PRICES
-  private subscribers: Set<(prices: PriceData) => void> = new Set<(prices: PriceData) => void>()
+  private subscribers: Set<(prices: PriceData) => void> = new Set<
+    (prices: PriceData) => void
+  >()
   private updateInterval: NodeJS.Timeout | null = null
 
   constructor() {
@@ -52,29 +54,30 @@ class PriceOracleService {
   // Simulate price updates with realistic volatility
   private updatePrices() {
     const volatility = 0.02 // 2% volatility
-    const newKalePrice = this.prices.KALE.price * (1 + (Math.random() - 0.5) * volatility * 2)
-    
+    const newKalePrice =
+      this.prices.KALE.price * (1 + (Math.random() - 0.5) * volatility * 2)
+
     this.prices = {
       KALE: {
         ...this.prices.KALE,
         price: parseFloat(newKalePrice.toFixed(4)),
         timestamp: Date.now(),
-        change24h: this.prices.KALE.change24h + (Math.random() - 0.5) * 0.5
+        change24h: this.prices.KALE.change24h + (Math.random() - 0.5) * 0.5,
       },
       USDC: {
         ...this.prices.USDC,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     }
 
     // Notify subscribers
-    this.subscribers.forEach(callback => callback(this.prices))
+    this.subscribers.forEach((callback) => callback(this.prices))
   }
 
   // Subscribe to price updates
   subscribe(callback: (prices: PriceData) => void): () => void {
     this.subscribers.add(callback)
-    
+
     // Return unsubscribe function
     return () => {
       this.subscribers.delete(callback)
@@ -102,7 +105,10 @@ class PriceOracleService {
   }
 
   // Get historical price data (mock implementation)
-  getHistoricalPrices(symbol: string, days: number): Promise<{ timestamp: number; price: number }[]> {
+  getHistoricalPrices(
+    symbol: string,
+    days: number
+  ): Promise<{ timestamp: number; price: number }[]> {
     const token = this.getTokenPrice(symbol)
     if (!token) return Promise.resolve([])
 
@@ -111,13 +117,13 @@ class PriceOracleService {
     const dayMs = 24 * 60 * 60 * 1000
 
     for (let i = days; i >= 0; i--) {
-      const timestamp = now - (i * dayMs)
+      const timestamp = now - i * dayMs
       const volatility = 0.03
       const price = token.price * (1 + (Math.random() - 0.5) * volatility)
-      
+
       data.push({
         timestamp,
-        price: parseFloat(price.toFixed(4))
+        price: parseFloat(price.toFixed(4)),
       })
     }
 

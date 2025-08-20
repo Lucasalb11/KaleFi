@@ -4,7 +4,7 @@ import { futurenet, sandbox, standalone, testnet } from '@soroban-react/chains';
 import { freighter } from '@soroban-react/freighter';
 import type { ChainMetadata, Connector } from "@soroban-react/types";
 
-import deployments from '../../../contracts/deployments.json';
+import deployments from '../../../deployments.json';
 
 const chains: ChainMetadata[] = [sandbox, standalone, futurenet, testnet];
 const connectors: Connector[] = [freighter()];

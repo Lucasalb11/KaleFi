@@ -1,0 +1,29 @@
+[
+  {
+    "network": "standalone",
+    "networkPassphrase": "Standalone Network ; February 2017",
+    "contractId": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contractAddress": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contracts": {
+      "kalefi": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6"
+    }
+  },
+  {
+    "network": "testnet",
+    "networkPassphrase": "Test SDF Network ; September 2015",
+    "contractId": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contractAddress": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contracts": {
+      "kalefi": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6"
+    }
+  },
+  {
+    "network": "futurenet",
+    "networkPassphrase": "Test SDF Future Network ; October 2022",
+    "contractId": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contractAddress": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6",
+    "contracts": {
+      "kalefi": "CAPKM4UOBT7WDPOY3C6OLOOBTWRIZBYBHO4VVFCVM2YLJXVQRSU74NX6"
+    }
+  }
+]

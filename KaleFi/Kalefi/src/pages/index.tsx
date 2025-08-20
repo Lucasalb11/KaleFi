@@ -3,7 +3,7 @@ import { CenterBody } from '@/components/layout/CenterBody'
 import { ChainInfo } from '@/components/web3/ChainInfo'
 import { ConnectButton } from '@/components/web3/ConnectButton'
 import { FreighterConnectButton } from '@/components/web3/FreighterConnectButton'
-import { GreeterContractInteractions } from '@/components/web3/GreeterContractInteractions'
+import { KaleFiLendingInterface } from '@/components/kalefi/KaleFiLendingInterface'
 import type { NextPage } from 'next'
 import 'twin.macro'
 
@@ -28,12 +28,14 @@ const HomePage: NextPage = () => {
         <ConnectButton />
         <FreighterConnectButton />
 
+        {/* KaleFi Lending Interface */}
+        <div tw="mt-10">
+          <KaleFiLendingInterface />
+        </div>
+
         <div tw="mt-10 flex w-full flex-wrap items-start justify-center gap-4">
           {/* Chain Metadata Information */}
           <ChainInfo />
-
-          {/* Greeter Read/Write Contract Interactions */}
-          <GreeterContractInteractions />
         </div>
       </CenterBody>
     </>

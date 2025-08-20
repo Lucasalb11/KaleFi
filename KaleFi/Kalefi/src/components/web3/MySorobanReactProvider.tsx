@@ -14,7 +14,7 @@ export default function MySorobanReactProvider({ children }: { children: React.R
     <SorobanReactProvider
       chains={chains}
       appName={"Kalefi"}
-      activeChain={testnet}
+      activeChain={standalone}
       connectors={connectors}   // 👈 só o Freighter
       deployments={deployments}
     >

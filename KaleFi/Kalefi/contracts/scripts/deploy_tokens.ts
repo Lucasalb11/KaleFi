@@ -21,10 +21,12 @@ export async function deployTokens(addressBook: AddressBook, network: string) {
   console.log('-------------------------------------------------------');
 
   // Check if tokens are already deployed
-  const existingKaleToken = addressBook.getContractId('kale_token');
-  const existingUsdcToken = addressBook.getContractId('usdc_token');
+  const hasKaleToken = addressBook.hasContract('kale_token');
+  const hasUsdcToken = addressBook.hasContract('usdc_token');
   
-  if (existingKaleToken && existingUsdcToken) {
+  if (hasKaleToken && hasUsdcToken) {
+    const existingKaleToken = addressBook.getContractId('kale_token');
+    const existingUsdcToken = addressBook.getContractId('usdc_token');
     console.log('✅ Tokens already deployed:');
     console.log(`KALE Token: ${existingKaleToken}`);
     console.log(`USDC Token: ${existingUsdcToken}`);

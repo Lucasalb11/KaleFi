@@ -1,117 +1,172 @@
-# KaleFi Lending Interface Components
+# KaleFi Lending Interface
 
-This directory contains the UI components for the KaleFi lending protocol on Stellar.
+Esta é a interface principal do protocolo de lending KaleFi, construída com React e TypeScript, integrada com a blockchain Stellar através do Soroban.
 
-## Components
+## 🚀 Funcionalidades
 
-### KaleFiLendingInterface
-The main lending interface component that provides:
-- **Deposit KALE**: Users can deposit KALE tokens as collateral
-- **Borrow USDC**: Users can borrow USDC against their KALE collateral
-- **Real-time Price Display**: Shows current KALE and USDC prices with 24h changes
-- **Health Factor Monitoring**: Visual indicators for loan health and risk
-- **Loan-to-Value (LTV) Calculation**: Real-time LTV based on current prices
+### Operações Principais
 
-### PriceChart
-A simple price chart component that displays:
-- Historical KALE price data over 1D, 7D, and 30D timeframes
-- Price change percentages
-- Visual price trend indicators
-- Recent price data points
+#### 1. **Supply (Depósito)**
+- **O que é**: Depositar tokens KALE como collateral
+- **Como funciona**: 
+  - Digite a quantidade de KALE que deseja depositar
+  - Clique em "Supply"
+  - Os tokens são adicionados ao seu collateral
+  - Você pode ver o total na seção "Your Supplies"
 
-## Features
+#### 2. **Borrow (Empréstimo)**
+- **O que é**: Pegar emprestado tokens USDC
+- **Como funciona**:
+  - Primeiro você precisa ter collateral (KALE)
+  - Digite a quantidade de USDC que deseja emprestar
+  - Clique em "Borrow"
+  - Os tokens USDC são enviados para sua carteira
+  - A dívida aparece na seção "Your Borrows"
 
-### Real-time Price Integration
-- **Price Oracle Service**: Simulates real-time price updates every 5 seconds
-- **Price Volatility**: Realistic price movements with configurable volatility
-- **24h Price Changes**: Shows price performance over the last 24 hours
-- **Volume Data**: Displays trading volume for market context
+#### 3. **Withdraw (Retirada)**
+- **O que é**: Retirar parte do seu collateral
+- **Como funciona**:
+  - Digite a quantidade de KALE que deseja retirar
+  - Clique em "Withdraw"
+  - Os tokens são devolvidos para sua carteira
+  - O collateral é reduzido proporcionalmente
 
-### Risk Management
-- **Health Factor**: Calculated as (Collateral × Liquidation Threshold) / Borrowed Value
-- **Visual Risk Indicators**: 
-  - 🟢 Green: Safe (Health Factor ≥ 1.5)
-  - 🟡 Yellow: Warning (Health Factor 1.1-1.5)
-  - 🔴 Red: Danger (Health Factor < 1.1)
-- **LTV Monitoring**: Real-time loan-to-value ratio with color coding
-- **Borrow Limits**: Prevents borrowing when health factor is too low
+#### 4. **Repay (Pagamento)**
+- **O que é**: Pagar parte da sua dívida
+- **Como funciona**:
+  - Digite a quantidade de USDC que deseja pagar
+  - Clique em "Repay"
+  - A dívida é reduzida proporcionalmente
 
-### User Experience
-- **Dark Mode Design**: Modern, professional dark theme
-- **Responsive Layout**: Works on desktop and mobile devices
-- **Real-time Updates**: Live price and health factor updates
-- **Interactive Elements**: Hover effects and smooth transitions
-- **Loading States**: Visual feedback during operations
+### Indicadores de Risco
 
-## Technical Implementation
+#### **Health Factor**
+- **∞ (Safe)**: Sem dívida - situação segura
+- **> 1.5**: Seguro - pode fazer operações
+- **1.1 - 1.5**: Aviso - cuidado com novas operações
+- **< 1.1**: Perigoso - não pode fazer novas operações
 
-### Price Oracle Service
-```typescript
-// Located in src/services/priceOracle.ts
-class PriceOracleService {
-  // Real-time price updates every 5 seconds
-  // Configurable volatility settings
-  // Subscriber pattern for price updates
-  // Historical price data generation
-}
-```
+#### **Loan-to-Value (LTV)**
+- **0%**: Sem dívida
+- **< 50%**: Seguro
+- **50-80%**: Aviso
+- **> 80%**: Perigoso (limite máximo)
 
-### Custom Hooks
-```typescript
-// Located in src/hooks/usePriceOracle.ts
-export const usePriceOracle = () => {
-  // Real-time price subscription
-  // Price impact calculations
-  // Historical data fetching
-}
-```
+## 🔧 Como Usar
 
-### State Management
-- Local state for deposit/borrow amounts
-- Real-time price data from oracle service
-- Collateral and borrowed value tracking
-- Loading states for better UX
+### 1. **Conectar Carteira**
+- Clique em "Connect Wallet" no canto superior direito
+- Use Freighter ou outra carteira compatível com Stellar
 
-## Future Enhancements
+### 2. **Fazer Supply**
+1. Na seção "Assets to Supply"
+2. Digite a quantidade de KALE
+3. Clique em "Supply"
+4. Confirme a transação na sua carteira
 
-### Smart Contract Integration
-- Replace mock deposit/borrow logic with actual Soroban contract calls
-- Integrate with KaleFi lending protocol smart contracts
-- Real-time balance updates from blockchain
+### 3. **Fazer Borrow**
+1. Primeiro faça supply de KALE como collateral
+2. Na seção "Assets to Borrow"
+3. Digite a quantidade de USDC
+4. Clique em "Borrow"
+5. Confirme a transação na sua carteira
 
-### Advanced Price Feeds
-- Integration with Pyth Network for Stellar
-- Chainlink price oracle support
-- Multiple price source aggregation
+### 4. **Monitorar Posição**
+- Use a seção "Your Position Status" para ver:
+  - Total de collateral
+  - Total de dívida
+  - Health factor atual
 
-### Enhanced Risk Management
-- Liquidation threshold configuration
-- Collateral type diversification
-- Advanced risk scoring algorithms
+## 📊 Dados em Tempo Real
 
-### Analytics & Reporting
-- Transaction history
-- Interest rate calculations
-- Portfolio performance metrics
-- Risk assessment reports
+### Preços
+- **KALE**: Preço atual em USD
+- **USDC**: Sempre $1.00 (stablecoin)
+- Mudanças de 24h
+- Volume de negociação
 
-## Usage
+### APY (Annual Percentage Yield)
+- **KALE Supply**: 3.42% (ganho sobre collateral)
+- **USDC Borrow**: 5.33% (custo do empréstimo)
 
-The components are automatically integrated into the main page at `src/pages/index.tsx`. Users can:
+## 🛡️ Segurança
 
-1. **Connect Wallet**: Use Freighter or other Stellar wallets
-2. **View Prices**: See real-time KALE and USDC prices
-3. **Deposit Collateral**: Add KALE tokens to their position
-4. **Borrow USDC**: Take out loans against their collateral
-5. **Monitor Risk**: Track health factor and LTV in real-time
-6. **Analyze Trends**: View price charts and historical data
+### Validações Implementadas
+- ✅ Verificação de carteira conectada
+- ✅ Validação de valores positivos
+- ✅ Verificação de health factor
+- ✅ Verificação de collateral suficiente
+- ✅ Prevenção de overdraw/overborrow
 
-## Styling
+### Boas Práticas
+- Mantenha seu health factor acima de 1.5
+- Não retire todo seu collateral se tiver dívidas
+- Monitore o preço do KALE (afeta seu health factor)
+- Pague dívidas antes de retirar muito collateral
 
-The components use:
-- **Twin.macro**: For CSS-in-JS with Tailwind utilities
-- **Dark Theme**: Professional dark mode design
-- **Responsive Grid**: CSS Grid for flexible layouts
-- **Color Coding**: Semantic colors for risk indicators
-- **Smooth Transitions**: CSS transitions for interactions
+## 🔄 Estado da Interface
+
+### Atualizações em Tempo Real
+- O estado é atualizado imediatamente após operações
+- Health factor e LTV são recalculados automaticamente
+- Feedback visual instantâneo para todas as operações
+
+### Dados Persistidos
+- As operações são simuladas localmente para demonstração
+- Em produção, os dados virão dos smart contracts
+- O estado é mantido durante a sessão do usuário
+
+## 🧪 Modo Demo
+
+**⚠️ IMPORTANTE**: Esta é uma versão de demonstração que:
+- Usa dados simulados (mock data)
+- Não faz transações reais na blockchain
+- Serve para testar a interface e fluxo de usuário
+- Os contratos estão deployados na testnet para referência
+
+## 🚀 Próximos Passos
+
+### Implementações Futuras
+- [ ] Integração real com smart contracts Soroban
+- [ ] Transações reais na blockchain Stellar
+- [ ] Histórico de transações
+- [ ] Notificações push para mudanças de preço
+- [ ] Integração com mais tokens
+- [ ] Analytics avançados de posição
+
+### Melhorias de UX
+- [ ] Animações de transições
+- [ ] Modo escuro/claro
+- [ ] Responsividade mobile
+- [ ] Internacionalização (i18n)
+- [ ] Acessibilidade (a11y)
+
+## 📝 Troubleshooting
+
+### Problemas Comuns
+
+**Q: Por que não consigo fazer borrow?**
+A: Verifique se:
+- Tem collateral suficiente
+- Health factor > 1.1
+- Carteira conectada
+
+**Q: Por que o health factor mudou?**
+A: O health factor é calculado como: `(collateral × preço) / dívida`
+
+**Q: Posso retirar todo meu collateral?**
+A: Só se não tiver dívidas. Caso contrário, mantenha suficiente para manter health factor > 1.1
+
+## 🤝 Contribuição
+
+Para contribuir com o desenvolvimento:
+1. Fork o repositório
+2. Crie uma branch para sua feature
+3. Implemente as mudanças
+4. Adicione testes
+5. Faça pull request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 

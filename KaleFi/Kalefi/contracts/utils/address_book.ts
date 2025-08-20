@@ -116,6 +116,15 @@ export class AddressBook {
   }
 
   /**
+   * Check if a contract exists without throwing an error
+   * @param contractKey - The name of the contract
+   * @returns true if contract exists, false otherwise
+   */
+  hasContract(contractKey: string): boolean {
+    return this.ids.has(contractKey);
+  }
+
+  /**
    * Get the hex encoded contractId for a given contractKey
    * @param contractKey - The name of the contract
    * @returns Hex encoded contractId

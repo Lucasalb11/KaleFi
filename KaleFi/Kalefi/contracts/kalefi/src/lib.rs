@@ -128,6 +128,55 @@ impl KaleFi {
         usdc_client.transfer(&e.current_contract_address(), &to, &amount);
     }
 
+    /// Sacar colateral KALE
+    pub fn withdraw(e: Env, to: Address, amount: i128) {
+        to.require_auth();
+        
+        let curr_collateral: i128 = e.storage().instance().get(&DataKey::Collateral(to.clone())).unwrap_or(0);
+        if amount > curr_collateral {
+            panic!("Insufficient collateral to withdraw");
+        }
+
+        // Calcula HF hipotético após saque
+        let new_collateral = curr_collateral - amount;
+        {
+            e.storage().instance().set(&DataKey::Collateral(to.clone()), &new_collateral);
+            let (_, _, hf_bps) = Self::check_health_factor(e.clone(), to.clone());
+            e.storage().instance().set(&DataKey::Collateral(to.clone()), &curr_collateral);
+
+            if hf_bps < SCALE_BPS {
+                panic!("Health factor too low to withdraw collateral");
+            }
+        }
+
+        // Atualiza colateral
+        e.storage().instance().set(&DataKey::Collateral(to.clone()), &new_collateral);
+
+        // Transfere KALE do contrato para o usuário
+        let kale: Address = e.storage().instance().get(&DataKey::KaleToken).unwrap();
+        let kale_client = token::Client::new(&e, &kale);
+        kale_client.transfer(&e.current_contract_address(), &to, &amount);
+    }
+
+    /// Pagar empréstimo USDC
+    pub fn repay(e: Env, from: Address, amount: i128) {
+        from.require_auth();
+        
+        let curr_debt: i128 = e.storage().instance().get(&DataKey::Debt(from.clone())).unwrap_or(0);
+        if amount > curr_debt {
+            panic!("Repayment amount exceeds debt");
+        }
+
+        // Transfere USDC do usuário para o contrato
+        let usdc: Address = e.storage().instance().get(&DataKey::UsdcToken).unwrap();
+        let usdc_client = token::Client::new(&e, &usdc);
+        usdc_client.transfer(&from, &e.current_contract_address(), &amount);
+
+        // Atualiza dívida
+        let new_debt = curr_debt - amount;
+        e.storage().instance().set(&DataKey::Debt(from.clone()), &new_debt);
+    }
+
     /// Retorna o preço mock atual
     pub fn get_mock_price(e: Env) -> i128 {
         e.storage().instance().get(&DataKey::MockPrice).unwrap()
@@ -136,5 +185,15 @@ impl KaleFi {
     /// Retorna o LTV atual
     pub fn get_ltv(e: Env) -> u32 {
         e.storage().instance().get(&DataKey::LtvBps).unwrap()
+    }
+
+    /// Retorna o colateral de um usuário
+    pub fn get_collateral(e: Env, user: Address) -> i128 {
+        e.storage().instance().get(&DataKey::Collateral(user)).unwrap_or(0)
+    }
+
+    /// Retorna a dívida de um usuário
+    pub fn get_debt(e: Env, user: Address) -> i128 {
+        e.storage().instance().get(&DataKey::Debt(user)).unwrap_or(0)
     }
 }

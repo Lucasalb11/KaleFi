@@ -31,21 +31,36 @@ build:
 	cd kalefi && cargo build --target wasm32-unknown-unknown --release
 	cd kalefi/soroban-examples/token && cargo build --target wasm32-unknown-unknown --release
 	@echo "✅ Build complete!"
+	@echo "📁 Checking generated WASM files..."
+	@if [ -f "kalefi/target/wasm32-unknown-unknown/release/kalefi.wasm" ]; then \
+		echo "✅ KaleFi WASM: kalefi.wasm"; \
+	else \
+		echo "❌ KaleFi WASM not found"; \
+	fi
+	@if [ -f "kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm" ]; then \
+		echo "✅ Token WASM: soroban_token_contract.wasm"; \
+	else \
+		echo "❌ Token WASM not found"; \
+	fi
+	@echo "🔧 Optimizing WASM files..."
+	@stellar contract optimize --wasm kalefi/target/wasm32-unknown-unknown/release/kalefi.wasm --wasm-out .soroban/kalefi.optimized.wasm
+	@stellar contract optimize --wasm kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm --wasm-out .soroban/token.optimized.wasm
+	@echo "✅ WASM optimization complete!"
 
 # Deploy tokens only
 deploy-tokens:
 	@echo "🚀 Deploying tokens..."
-	@if [ ! -f "kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm" ]; then \
+	@if [ ! -f "kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm" ]; then \
 		echo "❌ Token WASM not found. Run 'make build' first."; \
 		exit 1; \
 	fi
-	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm .soroban/token.wasm
+	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm .soroban/token.wasm
 	npx tsx scripts/deploy_tokens_only.ts standalone
 
 # Deploy tokens with custom network
 deploy-tokens-network:
 	@echo "🚀 Deploying tokens to $(NETWORK)..."
-	@if [ ! -f "kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm" ]; then \
+	@if [ ! -f "kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm" ]; then \
 		echo "❌ Token WASM not found. Run 'make build' first."; \
 		exit 1; \
 	fi
@@ -53,7 +68,7 @@ deploy-tokens-network:
 		echo "❌ Network not specified. Use: make deploy-tokens-network NETWORK=testnet"; \
 		exit 1; \
 	fi
-	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm .soroban/token.wasm
+	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm .soroban/token.wasm
 	npx tsx scripts/deploy_tokens_only.ts $(NETWORK)
 
 # Deploy KaleFi contract only (requires tokens)
@@ -78,7 +93,7 @@ deploy-all:
 deploy-standalone:
 	@echo "🌐 Deploying to standalone network..."
 	make build
-	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm .soroban/token.wasm
+	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm .soroban/token.wasm
 	@cp kalefi/target/wasm32-unknown-unknown/release/kalefi.wasm .soroban/kalefi.wasm
 	npx tsx scripts/deploy_all.ts standalone
 
@@ -86,7 +101,7 @@ deploy-standalone:
 deploy-testnet:
 	@echo "🌐 Deploying to testnet network..."
 	make build
-	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm .soroban/token.wasm
+	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm .soroban/token.wasm
 	@cp kalefi/target/wasm32-unknown-unknown/release/kalefi.wasm .soroban/kalefi.wasm
 	npx tsx scripts/deploy_all.ts testnet
 
@@ -94,7 +109,7 @@ deploy-testnet:
 deploy-futurenet:
 	@echo "🌐 Deploying to futurenet network..."
 	make build
-	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/token.wasm .soroban/token.wasm
+	@cp kalefi/soroban-examples/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm .soroban/token.wasm
 	@cp kalefi/target/wasm32-unknown-unknown/release/kalefi.wasm .soroban/futurenet.wasm
 	npx tsx scripts/deploy_all.ts futurenet
 

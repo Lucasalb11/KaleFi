@@ -93,6 +93,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       const amount = parseFloat(depositAmount)
       await deposit(amount)
       setDepositAmount('')
+      toast.success(`Successfully deposited ${amount} KALE! Check "Your Supplies" section.`)
     } catch (error) {
       toast.error('Deposit failed. Please try again.')
       console.error('Deposit error:', error)
@@ -110,6 +111,11 @@ export const KaleFiLendingInterface: React.FC = () => {
       return
     }
 
+    if (collateral <= 0) {
+      toast.error('You need to supply collateral first before borrowing')
+      return
+    }
+
     if (healthFactor < 1.1) {
       toast.error('Health factor too low. Cannot borrow.')
       return
@@ -119,6 +125,7 @@ export const KaleFiLendingInterface: React.FC = () => {
       const amount = parseFloat(borrowAmount)
       await borrow(amount)
       setBorrowAmount('')
+      toast.success(`Successfully borrowed ${amount} USDC! Check "Your Borrows" section.`)
     } catch (error) {
       toast.error('Borrow failed. Please try again.')
       console.error('Borrow error:', error)
@@ -136,10 +143,16 @@ export const KaleFiLendingInterface: React.FC = () => {
       return
     }
 
+    if (parseFloat(withdrawAmount) > collateral) {
+      toast.error('Cannot withdraw more than your supplied collateral')
+      return
+    }
+
     try {
       const amount = parseFloat(withdrawAmount)
       await withdraw(amount)
       setWithdrawAmount('')
+      toast.success(`Successfully withdrew ${amount} KALE!`)
     } catch (error) {
       toast.error('Withdraw failed. Please try again.')
       console.error('Withdraw error:', error)
@@ -157,10 +170,16 @@ export const KaleFiLendingInterface: React.FC = () => {
       return
     }
 
+    if (parseFloat(repayAmount) > debt) {
+      toast.error('Cannot repay more than your current debt')
+      return
+    }
+
     try {
       const amount = parseFloat(repayAmount)
       await repay(amount)
       setRepayAmount('')
+      toast.success(`Successfully repaid ${amount} USDC!`)
     } catch (error) {
       toast.error('Repay failed. Please try again.')
       console.error('Repay error:', error)
@@ -216,6 +235,42 @@ export const KaleFiLendingInterface: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* User Position Status */}
+      {address && (
+        <div tw="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
+          <div tw="text-center mb-4">
+            <h3 tw="text-lg font-semibold text-white">Your Position Status</h3>
+          </div>
+          <div tw="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+              <div tw="text-center">
+                <p tw="text-gray-400 text-sm">Total Supplied</p>
+                <p tw="text-white font-bold text-lg">{collateral.toFixed(4)} KALE</p>
+                <p tw="text-gray-400 text-xs">${(collateral * kalePrice).toFixed(2)}</p>
+              </div>
+            </div>
+            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+              <div tw="text-center">
+                <p tw="text-gray-400 text-sm">Total Borrowed</p>
+                <p tw="text-white font-bold text-lg">{debt.toFixed(2)} USDC</p>
+                <p tw="text-gray-400 text-xs">${debt.toFixed(2)}</p>
+              </div>
+            </div>
+            <div tw="bg-gray-700 rounded-lg p-3 border border-gray-600">
+              <div tw="text-center">
+                <p tw="text-gray-400 text-sm">Health Factor</p>
+                <p className={getHealthColor(healthFactor)} tw="font-bold text-lg">
+                  {healthFactor >= 999 ? '∞' : healthFactor.toFixed(2)}
+                </p>
+                <p tw="text-gray-400 text-xs">
+                  {healthFactor >= 999 ? 'Safe (No Debt)' : healthFactor >= 1.5 ? 'Safe' : healthFactor >= 1.1 ? 'Warning' : 'Danger'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Price Display */}
       <div tw="bg-gray-800 rounded-lg p-4 mb-6">
@@ -301,6 +356,22 @@ export const KaleFiLendingInterface: React.FC = () => {
                     </div>
                   </div>
                   
+                  {/* Supply Info */}
+                  <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+                    <div>
+                      <p tw="text-gray-400">APY</p>
+                      <p tw="text-white font-semibold">3.42%</p>
+                    </div>
+                    <div>
+                      <p tw="text-gray-400">LTV</p>
+                      <p tw="text-white font-semibold">80%</p>
+                    </div>
+                    <div>
+                      <p tw="text-gray-400">Risk</p>
+                      <p tw="text-green-400 font-semibold">Low</p>
+                    </div>
+                  </div>
+                  
                   {/* Withdraw Section */}
                   <div tw="border-t border-gray-600 pt-3">
                     <div tw="flex items-center gap-2 mb-2">
@@ -313,16 +384,21 @@ export const KaleFiLendingInterface: React.FC = () => {
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         placeholder="0.0"
+                        max={collateral}
+                        step="0.0001"
                         tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500"
                       />
                       <button
                         onClick={handleWithdraw}
-                        disabled={isLoading || !address || collateral <= 0}
+                        disabled={isLoading || !address || collateral <= 0 || !withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > collateral}
                         tw="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
                       >
                         {isLoading ? '...' : 'Withdraw'}
                       </button>
                     </div>
+                    {withdrawAmount && parseFloat(withdrawAmount) > collateral && (
+                      <p tw="text-red-400 text-xs mt-1">Cannot withdraw more than your collateral</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -393,16 +469,21 @@ export const KaleFiLendingInterface: React.FC = () => {
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
                     placeholder="0.0"
+                    min="0"
+                    step="0.0001"
                     tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   />
                   <button
                     onClick={handleDeposit}
-                    disabled={isLoading || !address || pricesLoading}
+                    disabled={isLoading || !address || pricesLoading || !depositAmount || parseFloat(depositAmount) <= 0}
                     tw="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
                   >
                     {isLoading ? '...' : 'Supply'}
                   </button>
                 </div>
+                {depositAmount && parseFloat(depositAmount) <= 0 && (
+                  <p tw="text-red-400 text-xs mt-1">Please enter a valid amount</p>
+                )}
               </div>
             </div>
           </div>
@@ -441,6 +522,22 @@ export const KaleFiLendingInterface: React.FC = () => {
                     </div>
                   </div>
                   
+                  {/* Borrow Info */}
+                  <div tw="grid grid-cols-3 gap-2 mb-3 text-sm">
+                    <div>
+                      <p tw="text-gray-400">APY</p>
+                      <p tw="text-white font-semibold">5.33%</p>
+                    </div>
+                    <div>
+                      <p tw="text-gray-400">Max LTV</p>
+                      <p tw="text-white font-semibold">80%</p>
+                    </div>
+                    <div>
+                      <p tw="text-gray-400">Risk</p>
+                      <p tw="text-green-400 font-semibold">Low</p>
+                    </div>
+                  </div>
+                  
                   {/* Repay Section */}
                   <div tw="border-t border-gray-600 pt-3">
                     <div tw="flex items-center gap-2 mb-2">
@@ -453,16 +550,21 @@ export const KaleFiLendingInterface: React.FC = () => {
                         value={repayAmount}
                         onChange={(e) => setRepayAmount(e.target.value)}
                         placeholder="0.0"
+                        max={debt}
+                        step="0.01"
                         tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                       />
                       <button
                         onClick={handleRepay}
-                        disabled={isLoading || !address || debt <= 0}
+                        disabled={isLoading || !address || debt <= 0 || !repayAmount || parseFloat(repayAmount) <= 0 || parseFloat(repayAmount) > debt}
                         tw="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
                       >
                         {isLoading ? '...' : 'Repay'}
                       </button>
                     </div>
+                    {repayAmount && parseFloat(repayAmount) > debt && (
+                      <p tw="text-red-400 text-xs mt-1">Cannot repay more than your debt</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -533,16 +635,27 @@ export const KaleFiLendingInterface: React.FC = () => {
                     value={borrowAmount}
                     onChange={(e) => setBorrowAmount(e.target.value)}
                     placeholder="0.0"
+                    min="0"
+                    step="0.01"
                     tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
                   />
                   <button
                     onClick={handleBorrow}
-                    disabled={isLoading || !address || healthFactor < 1.1 || pricesLoading}
+                    disabled={isLoading || !address || healthFactor < 1.1 || pricesLoading || !borrowAmount || parseFloat(borrowAmount) <= 0 || collateral <= 0}
                     tw="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
                   >
                     {isLoading ? '...' : 'Borrow'}
                   </button>
                 </div>
+                {borrowAmount && parseFloat(borrowAmount) <= 0 && (
+                  <p tw="text-red-400 text-xs mt-1">Please enter a valid amount</p>
+                )}
+                {collateral <= 0 && (
+                  <p tw="text-yellow-400 text-xs mt-1">Supply collateral first to borrow</p>
+                )}
+                {healthFactor < 1.1 && collateral > 0 && (
+                  <p tw="text-red-400 text-xs mt-1">Health factor too low to borrow</p>
+                )}
               </div>
             </div>
           </div>

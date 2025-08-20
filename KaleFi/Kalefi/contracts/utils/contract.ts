@@ -15,9 +15,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function installContract(wasmKey: string, addressBook: AddressBook, source: Keypair) {
-  const contract_wasm_path = path.join(__dirname,`../../${wasmKey}/target/wasm32-unknown-unknown/release/${wasmKey}.wasm`);
+  // Use the WASM files from .soroban directory (copied by Makefile)
+  let wasmFileName: string;
+  
+  if (wasmKey === 'token') {
+    wasmFileName = 'token.optimized.wasm';
+  } else {
+    wasmFileName = `${wasmKey}.optimized.wasm`;
+  }
+  
+  const contract_wasm_path = path.join(__dirname, `../.soroban/${wasmFileName}`);
+  
   if (!existsSync(contract_wasm_path)) {
-    const error = `The wasm file for contract ${wasmKey} cannot be found at ${contract_wasm_path}`
+    const error = `The wasm file for contract ${wasmKey} cannot be found at ${contract_wasm_path}. Make sure to run 'make build' first.`
     throw new Error(error);
   }
   const contractWasm = readFileSync(contract_wasm_path);

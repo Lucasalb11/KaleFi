@@ -133,6 +133,24 @@ export const useKalefi = () => {
       return
     }
 
+    // Validate borrow amount against collateral and LTV limit
+    const collateralValue = state.collateral * state.kalePrice
+    const maxBorrowAmount = collateralValue * 0.8 // 80% LTV limit
+    
+    if (amount > maxBorrowAmount) {
+      toast.error(`Cannot borrow more than ${maxBorrowAmount.toFixed(2)} USDC (80% of collateral value)`)
+      throw new Error('Borrow amount exceeds LTV limit')
+    }
+
+    // Check if new debt would exceed LTV limit
+    const newDebt = state.debt + amount
+    const newLTV = (newDebt / collateralValue) * 100
+    
+    if (newLTV > 80) {
+      toast.error(`Borrowing ${amount} USDC would exceed the 80% LTV limit`)
+      throw new Error('Borrow would exceed LTV limit')
+    }
+
     setState(prev => ({ ...prev, isLoading: true }))
     try {
       // Build and send transaction
@@ -163,8 +181,9 @@ export const useKalefi = () => {
       console.error('Borrow error:', error)
       toast.error('Borrow failed. Please try again.')
       setState(prev => ({ ...prev, isLoading: false }))
+      throw error
     }
-  }, [address, calculateHealthFactor, calculateLTV])
+  }, [address, calculateHealthFactor, calculateLTV, state.collateral, state.kalePrice, state.debt])
 
   // Withdraw collateral
   const withdraw = useCallback(async (amount: number) => {

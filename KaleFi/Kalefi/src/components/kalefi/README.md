@@ -52,6 +52,22 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
 - **50-80%**: Aviso
 - **> 80%**: Perigoso (limite máximo)
 
+### **Limites de Empréstimo (Borrow Limits)**
+
+#### **Cálculo do LTV**
+O LTV é calculado como: `(Valor da Dívida / Valor do Collateral) × 100`
+
+#### **Exemplo Prático**
+- **Collateral**: 100 KALE × $0.50 = $50
+- **LTV Máximo**: 80% = $40 USDC
+- **Borrow Permitido**: Máximo $40 USDC
+
+#### **Validações Automáticas**
+- ✅ **Interface**: Mostra limite máximo em tempo real
+- ✅ **Botão**: Desabilitado quando excede LTV
+- ✅ **Hook**: Validação dupla no backend
+- ✅ **Feedback**: Mensagens de erro claras
+
 ## 🔧 Como Usar
 
 ### 1. **Conectar Carteira**
@@ -97,6 +113,9 @@ Esta é a interface principal do protocolo de lending KaleFi, construída com Re
 - ✅ Verificação de health factor
 - ✅ Verificação de collateral suficiente
 - ✅ Prevenção de overdraw/overborrow
+- ✅ **Validação de LTV máximo (80%)**
+- ✅ **Cálculo automático do limite de borrow baseado no collateral**
+- ✅ **Validação em tempo real dos limites de empréstimo**
 
 ### Boas Práticas
 - Mantenha seu health factor acima de 1.5

@@ -116,6 +116,25 @@ export const KaleFiLendingInterface: React.FC = () => {
       return
     }
 
+    // Calculate maximum borrow amount based on collateral and LTV limit
+    const collateralValue = collateral * kalePrice
+    const maxBorrowAmount = collateralValue * 0.8 // 80% LTV limit
+    const requestedAmount = parseFloat(borrowAmount)
+    
+    if (requestedAmount > maxBorrowAmount) {
+      toast.error(`Cannot borrow more than ${maxBorrowAmount.toFixed(2)} USDC (80% of collateral value)`)
+      return
+    }
+
+    // Check if new debt would exceed LTV limit
+    const newDebt = debt + requestedAmount
+    const newLTV = (newDebt / collateralValue) * 100
+    
+    if (newLTV > 80) {
+      toast.error(`Borrowing ${requestedAmount} USDC would exceed the 80% LTV limit`)
+      return
+    }
+
     if (healthFactor < 1.1) {
       toast.error('Health factor too low. Cannot borrow.')
       return
@@ -636,19 +655,42 @@ export const KaleFiLendingInterface: React.FC = () => {
                     onChange={(e) => setBorrowAmount(e.target.value)}
                     placeholder="0.0"
                     min="0"
+                    max={collateral > 0 ? (collateral * kalePrice * 0.8).toFixed(2) : "0"}
                     step="0.01"
                     tw="flex-1 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-green-500"
                   />
                   <button
                     onClick={handleBorrow}
-                    disabled={isLoading || !address || healthFactor < 1.1 || pricesLoading || !borrowAmount || parseFloat(borrowAmount) <= 0 || collateral <= 0}
+                    disabled={
+                      isLoading || 
+                      !address || 
+                      healthFactor < 1.1 || 
+                      pricesLoading || 
+                      !borrowAmount || 
+                      parseFloat(borrowAmount) <= 0 || 
+                      collateral <= 0 ||
+                      parseFloat(borrowAmount) > (collateral * kalePrice * 0.8)
+                    }
                     tw="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors"
                   >
                     {isLoading ? '...' : 'Borrow'}
                   </button>
                 </div>
+                
+                {/* Borrow limit info */}
+                {collateral > 0 && (
+                  <div tw="bg-blue-900/20 border border-blue-700 rounded-lg p-2 mb-2">
+                    <p tw="text-blue-300 text-xs">
+                      Max borrow: ${(collateral * kalePrice * 0.8).toFixed(2)} USDC (80% of ${(collateral * kalePrice).toFixed(2)} collateral)
+                    </p>
+                  </div>
+                )}
+                
                 {borrowAmount && parseFloat(borrowAmount) <= 0 && (
                   <p tw="text-red-400 text-xs mt-1">Please enter a valid amount</p>
+                )}
+                {borrowAmount && collateral > 0 && parseFloat(borrowAmount) > (collateral * kalePrice * 0.8) && (
+                  <p tw="text-red-400 text-xs mt-1">Amount exceeds 80% LTV limit</p>
                 )}
                 {collateral <= 0 && (
                   <p tw="text-yellow-400 text-xs mt-1">Supply collateral first to borrow</p>

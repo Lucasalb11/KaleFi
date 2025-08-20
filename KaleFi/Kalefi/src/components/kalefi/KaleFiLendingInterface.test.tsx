@@ -145,6 +145,66 @@ describe('KaleFiLendingInterface', () => {
     expect(borrowButton).toBeDisabled()
   })
 
+  it('prevents borrowing when amount exceeds LTV limit', async () => {
+    mockKalefiActions.borrow.mockRejectedValue(new Error('Borrow amount exceeds LTV limit'))
+    
+    // Mock state with collateral but insufficient for requested borrow
+    mockUseKalefi.mockReturnValue({
+      ...mockKalefiState,
+      collateral: 100, // 100 KALE
+      kalePrice: 0.5,  // $0.50 per KALE = $50 total collateral
+      healthFactor: 2.0,
+      ...mockKalefiActions
+    })
+    
+    render(<KaleFiLendingInterface />)
+    
+    const borrowInput = screen.getByPlaceholderText('0.0')
+    const borrowButton = screen.getByText('Borrow')
+    
+    // Try to borrow more than 80% of collateral value (80% of $50 = $40)
+    fireEvent.change(borrowInput, { target: { value: '50' } })
+    
+    // Button should be disabled due to LTV limit
+    expect(borrowButton).toBeDisabled()
+  })
+
+  it('shows borrow limit information when collateral exists', () => {
+    // Mock state with collateral
+    mockUseKalefi.mockReturnValue({
+      ...mockKalefiState,
+      collateral: 100, // 100 KALE
+      kalePrice: 0.5,  // $0.50 per KALE = $50 total collateral
+      ...mockKalefiActions
+    })
+    
+    render(<KaleFiLendingInterface />)
+    
+    // Should show max borrow limit (80% of $50 = $40)
+    expect(screen.getByText(/Max borrow: \$40\.00 USDC/)).toBeInTheDocument()
+    expect(screen.getByText(/80% of \$50\.00 collateral/)).toBeInTheDocument()
+  })
+
+  it('validates borrow amount against LTV limit in real-time', () => {
+    // Mock state with collateral
+    mockUseKalefi.mockReturnValue({
+      ...mockKalefiState,
+      collateral: 100, // 100 KALE
+      kalePrice: 0.5,  // $0.50 per KALE = $50 total collateral
+      ...mockKalefiActions
+    })
+    
+    render(<KaleFiLendingInterface />)
+    
+    const borrowInput = screen.getByPlaceholderText('0.0')
+    
+    // Enter amount that exceeds LTV limit
+    fireEvent.change(borrowInput, { target: { value: '50' } })
+    
+    // Should show error message
+    expect(screen.getByText('Amount exceeds 80% LTV limit')).toBeInTheDocument()
+  })
+
   it('shows position status when connected', () => {
     render(<KaleFiLendingInterface />)
     

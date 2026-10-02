@@ -1,0 +1,26 @@
+# Copy into <project-repo>/.github/workflows/notify-portfolio.yml
+#
+# Vercel's GitHub integration reports every deployment back to GitHub as a
+# deployment status. When a production deploy succeeds, this pings
+# lucasalmeida.me so the project's live link appears without editing the site.
+#
+# Required repo secret: PORTFOLIO_REVALIDATE_SECRET (same value as REVALIDATE_SECRET
+# in the personal site's Vercel env).
+#
+# Optional: also set the repo's "Website" field to the production URL
+# (Settings → General) — the site uses it as a fallback when VERCEL_TOKEN is unset.
+
+name: Notify portfolio
+
+on:
+  deployment_status:
+
+jobs:
+  notify:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revalidate lucasalmeida.me
+        run: |
+          curl -fsS -X POST https://lucasalmeida.me/api/revalidate \
+            -H "x-revalidate-secret: ${{ secrets.PORTFOLIO_REVALIDATE_SECRET }}"

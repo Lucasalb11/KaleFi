@@ -1,0 +1,16 @@
+# Keeps the demo market's KALE price fresh: the contract refuses prices older than an hour.
+name: Refresh demo price
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the price endpoint
+        run: |
+          curl -fsS -X POST "${{ secrets.KALEFI_APP_URL }}/api/cron/price" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -166,3 +166,6 @@ graphify-out/
 
 *.tsbuildinfo
 .env*.local
+.vercel
+.env*
+.secrets/

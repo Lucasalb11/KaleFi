@@ -1,4 +1,4 @@
-import { BASE_FEE, Contract, Keypair, rpc, TransactionBuilder, xdr } from '@stellar/stellar-sdk'
+import { BASE_FEE, Contract, Keypair, rpc, scValToNative, TransactionBuilder, xdr } from '@stellar/stellar-sdk'
 import { KALEFI } from '@/deployments/kalefi'
 
 /** Server-only: the demo issuer/admin key, from KALEFI_ADMIN_SECRET. */
@@ -10,6 +10,20 @@ export function adminKey(): Keypair | null {
   } catch {
     return null
   }
+}
+
+/** Read-only contract call (simulation), sourced from the admin account. */
+export async function readContract<T>(contractId: string, method: string, ...args: xdr.ScVal[]): Promise<T> {
+  const server = new rpc.Server(KALEFI.rpcUrl)
+  const account = await server.getAccount(KALEFI.issuer)
+  const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: KALEFI.networkPassphrase })
+    .addOperation(new Contract(contractId).call(method, ...args))
+    .setTimeout(30)
+    .build()
+  const sim = await server.simulateTransaction(tx)
+  if (rpc.Api.isSimulationError(sim)) throw new Error(sim.error)
+  if (!sim.result) throw new Error('Simulation returned no result')
+  return scValToNative(sim.result.retval) as T
 }
 
 /** Sign a single contract call with the admin key and wait for it to land. */

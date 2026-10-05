@@ -35,6 +35,9 @@ const EMPTY: KalefiState = {
   isLoading: false,
 }
 
+/** Asks the server to re-post the demo price if it's getting old (the contract rejects stale prices). */
+const refreshPrice = () => fetch('/api/price/refresh', { method: 'POST' }).catch(() => undefined)
+
 export const useKalefi = () => {
   const { address } = useSorobanReact()
   const [state, setState] = useState<KalefiState>(EMPTY)
@@ -82,8 +85,16 @@ export const useKalefi = () => {
   )
 
   const deposit = (amount: number) => run(`Deposited ${amount} KALE`, () => chain.deposit(address!, amount))
-  const borrow = (amount: number) => run(`Borrowed ${amount} USDC`, () => chain.borrow(address!, amount))
-  const withdraw = (amount: number) => run(`Withdrew ${amount} KALE`, () => chain.withdraw(address!, amount))
+  const borrow = (amount: number) =>
+    run(`Borrowed ${amount} USDC`, async () => {
+      await refreshPrice()
+      return chain.borrow(address!, amount)
+    })
+  const withdraw = (amount: number) =>
+    run(`Withdrew ${amount} KALE`, async () => {
+      await refreshPrice()
+      return chain.withdraw(address!, amount)
+    })
   const repay = (amount: number) => run(`Repaid ${amount} USDC`, () => chain.repay(address!, amount))
 
   const setupTrustlines = () =>
@@ -104,7 +115,7 @@ export const useKalefi = () => {
     })
 
   useEffect(() => {
-    void fetchUserPosition()
+    void refreshPrice().then(fetchUserPosition)
   }, [fetchUserPosition])
 
   return {

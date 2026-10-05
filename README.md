@@ -45,8 +45,8 @@ Positions are stored per user in persistent storage with TTL extension.
   that breaks on Linux.
 
 Known limit: the price is set by the admin, not an oracle. A KALE feed on Reflector would replace
-`set_price`; until then a GitHub Action calls `/api/cron/price` every 30 minutes to keep the demo
-usable.
+`set_price`; until then the app calls `/api/price/refresh` before price-sensitive actions, which
+re-posts the fixed demo price once it is 30 minutes old.
 
 ## Develop
 
@@ -58,4 +58,4 @@ npm install && npm run dev                 # frontend on http://localhost:3000
 ```
 
 Server env for the demo routes: `KALEFI_ADMIN_SECRET` (issuer key, mints demo KALE in
-`/api/faucet` and refreshes the price) and `CRON_SECRET` (guards `/api/cron/price`).
+`/api/faucet` and refreshes the price in `/api/price/refresh`).

@@ -16,7 +16,10 @@ async function issuedKale(): Promise<number> {
   const url = `${KALEFI.horizonUrl}/assets?asset_code=KALE&asset_issuer=${KALEFI.issuer}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Horizon ${res.status}`)
-  const record = (await res.json())._embedded?.records?.[0]
+  const body = (await res.json()) as {
+    _embedded?: { records?: { balances: { authorized: string }; contracts_amount: string }[] }
+  }
+  const record = body._embedded?.records?.[0]
   if (!record) return 0
   return Number(record.balances.authorized) + Number(record.contracts_amount)
 }

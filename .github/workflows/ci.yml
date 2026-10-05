@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      # Same as Vercel's npm: no install scripts (sharp@0.32 tries a native node-gyp build).
+      - run: npm ci --ignore-scripts
       - run: npx tsc --noEmit
       - run: npm run build
